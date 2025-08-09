@@ -20,6 +20,12 @@ function MainMenu() {
     label:"Categories",
     active:pathname === `/${params.storeId}/categories`
   
+  },
+  {
+    route:`/${params.storeId}/billboard`,
+    label:"Billboard",
+    active:pathname === `/${params.storeId}/billboard`
+  
   }
 ]
   return (

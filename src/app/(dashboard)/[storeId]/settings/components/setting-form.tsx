@@ -1,7 +1,7 @@
 "use client";
 import * as z from "zod";
 import React, { useEffect, useState } from "react";
-import { store } from "@prisma/client";
+import { Store } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { useRouter, useParams, redirect } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Heading from "@/components/ui/heading";
+import FormHeading from "@/components/ui/form-heading";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import axios from "axios";
@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import AlertModel from "@/components/ui/alert-model";
 
 interface settingFormProps {
-  data: store;
+  data: Store;
 }
 
 function SettingForm({ data }: settingFormProps) {
@@ -92,7 +92,7 @@ function SettingForm({ data }: settingFormProps) {
         disabled={isDeleting}
       />
       <div>
-        <Heading
+        <FormHeading
           title="Store settings"
           description="Use this page to update your store's name or delete the store permanently. Changing the store name will reflect across your dashboard and customer-facing interfaces. Deleting the store will remove all associated data and cannot be undone."
         />
@@ -100,14 +100,14 @@ function SettingForm({ data }: settingFormProps) {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(FormSubmit)}
-            className="px-4 pt-6 pb-4 w-full space-y-6"
+            className="px-4 pt-6 pb-6 w-full space-y-6"
           >
             <FormField
               name="name"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel> Name </FormLabel>
+                  <FormLabel className="pb-2"> Name </FormLabel>
                   <FormControl>
                     <Input
                       disabled={isLoading}

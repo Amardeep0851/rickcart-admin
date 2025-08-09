@@ -8,10 +8,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model store {
+model Store {
   id String @id @default(ulid())
   name String
   userId String
+  billboard Billboard[] @relation("StoreToBillboard")
   createAt DateTime @default(now())
   updateAt DateTime @updatedAt
+}
+
+model Billboard {
+id String @id @default(uuid())
+title String?
+imageUrl String 
+buttonText String?
+status Boolean @default(true)
+link String?
+storeId String
+store Store @relation("StoreToBillboard", fields: [storeId], references: [id])
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
 }
