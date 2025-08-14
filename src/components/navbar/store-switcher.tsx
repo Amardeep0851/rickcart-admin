@@ -36,7 +36,6 @@ function StoreSwitcher({items}:StoreSwitcherProps) {
   const router = useRouter();
 
   const currentlySelectedStore = items.find((item) => params.storeId === item.id)
-  console.log(currentlySelectedStore);
 
   const onSelectItem = (Id:string) => {
     setIsOpen(!isOpen)

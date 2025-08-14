@@ -3,10 +3,10 @@ import StoreSwitcher from "./store-switcher"
 import MainMenu from "./main-menu"
 import ThemeToggle from "./theme-toggle"
 import UserButton from "./user-button";
-import { store } from "@prisma/client";
+import { Store } from "@prisma/client";
 
 interface NavbarProps {
-items:store[];
+items:Store[];
 }
 
 function Navbar({items}:NavbarProps) {

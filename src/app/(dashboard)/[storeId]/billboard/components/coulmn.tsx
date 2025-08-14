@@ -1,0 +1,86 @@
+"use client"
+import { ColumnDef } from "@tanstack/react-table";
+import { Checkbox } from "@radix-ui/react-checkbox";
+import BillboardCellAction from "./billboard-cell-action";
+import Image from "next/image";
+import { Link, Minus} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+export interface BillboardDataProps{
+      id:string;
+      title?:string | null;
+      link?:string | null;
+      imageUrl:string;
+      buttonText?:string | null;
+      createdAt:string
+  }
+
+
+export const columns: ColumnDef<BillboardDataProps>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: "imageUrl",
+    header: "Image",
+    cell: ({ row }) => (
+      <div className="w-28">
+        <Image
+          src={row.original.imageUrl}
+          alt="Billboard Image"
+          width="200"
+          height="33"
+          className="w-[100px] h-[33px] rounded-sm object-cover"
+        />
+      </div>
+    ),
+  },
+  {
+    accessorKey: "title",
+    header: "Title",
+    cell: ({ row }) => (
+      <div className="">{row.original.title ? row.original.title : null}</div>
+    ),
+  },
+  {
+    accessorKey: "link",
+    header: "Link",
+    cell: ({ row }) => (
+      <div className="">{row.original.link ? <Link className="w-4 h-4" /> : <Minus className="w-4 h-4" />}</div>
+    ),
+  },
+   {
+    accessorKey: "buttonText",
+    header: () => (
+      <div className="text-center">Button Text</div>
+    ),
+    cell: ({ row }) => (
+      <div className=" flex justify-center ">{row.original.link ? <Badge variant="secondary" >{row.original.buttonText}</Badge> : <Minus className="w-4 h-4" />}</div>
+    ),
+  },
+  {
+    id: "actions",
+    header:() => (
+      <div className="w-14">Action</div>
+    ),
+    cell: ({ row }) => <BillboardCellAction rowData={row.original} />,
+  },
+];

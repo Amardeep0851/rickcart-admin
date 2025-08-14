@@ -1,5 +1,8 @@
 "use client";
 import * as z from "zod";
+import axios from "axios";
+import { toast } from "sonner";
+import { Trash } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Billboard } from "@prisma/client";
 import { useForm } from "react-hook-form";
@@ -15,13 +18,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import FormHeading from "@/components/ui/form-heading";
 import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
-import axios from "axios";
-import { toast } from "sonner";
-import AlertModel from "@/components/ui/alert-model";
 import { Checkbox } from "@/components/ui/checkbox";
+
+import FormHeading from "@/components/ui/form-heading";
+import AlertModel from "@/components/ui/alert-model";
+import ImageUpload from "@/components/ui/image-upload";
 
 interface BillboardFormProps {
   data?: Billboard;
@@ -32,15 +34,17 @@ function BillboardForm({ data }: BillboardFormProps) {
   const params = useParams();
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const toastMessage = data ? "Billboard information is updated successfully" : "New billboard is created successfully";
+
+  const toastMessage = data
+    ? "Billboard information is updated successfully"
+    : "New billboard is created successfully";
 
   const formSchema = z.object({
     title: z.string().min(1, { message: "Title cannot be empty." }),
     imageUrl: z.string().min(1, { message: "Image cannot be empty." }),
-    link: z.string().nullable(),
-    buttonText: z.string().nullish(),
-    status:z.boolean().nullish()
-
+    link: z.string().optional(),
+    buttonText: z.string().optional(),
+    status: z.boolean().optional(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -50,20 +54,23 @@ function BillboardForm({ data }: BillboardFormProps) {
       imageUrl: data?.imageUrl || "",
       link: data?.link || "",
       buttonText: data?.buttonText || "Shop Now",
-      status: data?.status ?? false
+      status: data?.status ?? true,
     },
   });
 
-  
-
   const FormSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await axios.patch(
-        `/api/billboard/${params.storeId}`,
+
+      const response = await axios.post(
+        `/api/${params.storeId}/billboard/`,
         values
       );
-      router.refresh();
-      toast.success(toastMessage);
+      if (response.data.status === 200) {
+        form.reset();
+        router.refresh();
+        toast.success(toastMessage);
+        router.push(`/${params.storeId}/billboard/`);
+      }
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong. Please try again.");
@@ -79,6 +86,7 @@ function BillboardForm({ data }: BillboardFormProps) {
         router.refresh();
         router.push("/");
       }
+      
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong. Please try again.");
@@ -102,9 +110,13 @@ function BillboardForm({ data }: BillboardFormProps) {
       <div>
         <FormHeading
           title="Create New Billboard"
-          description={<>
-          Add a new billboard to your store. Billboards are used to promote key products, sales, or announcements on your homepage or category pages. Recommended image dimensions: <b>1200x400</b> pixels.
-          </>}
+          description={
+            <>
+              Add a new billboard to your store. Billboards are used to promote
+              key products, sales, or announcements on your homepage or category
+              pages. Recommended image dimensions: <b>1200x400</b> pixels.
+            </>
+          }
         />
 
         <Form {...form}>
@@ -117,13 +129,12 @@ function BillboardForm({ data }: BillboardFormProps) {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> upload Image </FormLabel>
+                  <FormLabel className="pb-2"> Upload Image </FormLabel>
                   <FormControl>
-                    <Input
+                    <ImageUpload
+                      value={field.value ? [field.value] : []}
+                      onChange={(value) => field.onChange(value)}
                       disabled={isLoading}
-                      placeholder="Enter Billboard title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -156,10 +167,10 @@ function BillboardForm({ data }: BillboardFormProps) {
                   <FormLabel className="pb-2"> Button Text </FormLabel>
                   <FormControl>
                     <Input
-                      disabled={isLoading}
+                      {...field}
+                      value={field.value ?? ""}
                       placeholder="Enter Billboard title..."
                       className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -174,36 +185,40 @@ function BillboardForm({ data }: BillboardFormProps) {
                   <FormLabel className="pb-2"> Link </FormLabel>
                   <FormControl>
                     <Input
+                      {...field}
+                      value={field.value ?? ""}
                       disabled={isLoading}
                       placeholder="Enter Billboard title..."
                       className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              name="status"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="pb-2"> Title </FormLabel>
-                  <FormControl>
-                    <Checkbox
-                      disabled={isLoading}
-                      placeholder="Enter Billboard title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
+            {!!data && 
+              <FormField
+                name="status"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="pb-2"> Status </FormLabel>
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value ?? true}
+                        onCheckedChange={(checked) => field.onChange(!!checked)}
+                        disabled={isLoading}
+                        className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
+                      />
+                    </FormControl>
+                    <FormMessage />r
+                  </FormItem>
+                )}
+              />
+            }
             <div className="flex justify-end space-x-4 mt-5">
-              <Button
+              {!!data && <Button
                 type="button"
                 variant="destructive"
                 className="cursor-pointer"
@@ -211,7 +226,7 @@ function BillboardForm({ data }: BillboardFormProps) {
                 onClick={() => setIsOpen(!isOpen)}
               >
                 <Trash />
-              </Button>
+              </Button>}
 
               <Button
                 type="submit"

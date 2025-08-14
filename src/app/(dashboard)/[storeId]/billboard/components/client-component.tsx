@@ -1,15 +1,20 @@
 "use client"
 import React from 'react';
 import { PlusCircle } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { Billboard } from "@prisma/client";
 
+import DataTable from "./data-table";
+import { columns, BillboardDataProps as dataProps } from "./coulmn";
 import { Button } from "@/components/ui/button";
 import PageHeading from "@/components/ui/page-heading";
-import DataTable from "./data-table";
-import { useParams, useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 
+interface BillboardDataProps{
+  BillboardData:dataProps[]
+}
 
-function ClientComponent() {
+function ClientComponent({BillboardData}:BillboardDataProps) {
 
   const router = useRouter();
   const params = useParams()
@@ -27,7 +32,7 @@ function ClientComponent() {
       </div>
       <Separator />
       <div className="pt-4">
-        <DataTable />
+        <DataTable data={BillboardData} columns={columns} />
       </div>
     </div>
   )
