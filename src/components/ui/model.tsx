@@ -1,3 +1,4 @@
+"use client"
 import React from 'react';
 
 import { 
@@ -22,7 +23,6 @@ function Model({ title, description, isOpen, onClose, children }:ModelProps) {
       onClose();
     }
   };
-  
   return (
     <Dialog onOpenChange={onChange} open={isOpen} >
       <DialogContent className="py-4 px-4">

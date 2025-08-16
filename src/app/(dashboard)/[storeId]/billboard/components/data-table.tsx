@@ -1,3 +1,4 @@
+"use client"
 import React from 'react';
 import { 
   getCoreRowModel, 
@@ -15,7 +16,6 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { BillboardDataProps } from "./coulmn";
 
 interface DataProps<TData, TValue>{
   columns:ColumnDef<TData, TValue>[];
@@ -67,11 +67,12 @@ function DataTable<TData, TValue>({data, columns}:DataProps<TData, TValue>) {
       ) : (
         <TableBody>
           <TableRow>
-            <TableCell colSpan={columns.length}>No Result.</TableCell>
+            <TableCell colSpan={columns.length} className="text-center">No Result.</TableCell>
           </TableRow>
         </TableBody>
       )}
     </Table>
+
   );
 }
 

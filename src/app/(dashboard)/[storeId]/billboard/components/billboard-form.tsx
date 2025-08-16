@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import FormHeading from "@/components/ui/form-heading";
 import AlertModel from "@/components/ui/alert-model";
 import ImageUpload from "@/components/ui/image-upload";
+import Link from "next/link";
 
 interface BillboardFormProps {
   data?: Billboard;
@@ -60,17 +61,23 @@ function BillboardForm({ data }: BillboardFormProps) {
 
   const FormSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      let response;
 
-      const response = await axios.post(
-        `/api/${params.storeId}/billboard/`,
-        values
-      );
+      if(data){
+        response = await axios.patch(
+        `/api/${params.storeId}/billboard/${data.id}`, values)
+      }
+      else{
+        response = await axios.post(
+        `/api/${params.storeId}/billboard/`, values );
+      }
+
       if (response.data.status === 200) {
-        form.reset();
         router.refresh();
         toast.success(toastMessage);
         router.push(`/${params.storeId}/billboard/`);
       }
+
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong. Please try again.");
@@ -79,12 +86,15 @@ function BillboardForm({ data }: BillboardFormProps) {
 
   const onDelete = async () => {
     try {
-      setIsDeleting(true);
-      const response = await axios.delete(`/api/store/${params.storeId}`);
 
-      if (response.status === 200) {
-        router.refresh();
-        router.push("/");
+      setIsDeleting(true);
+
+      const response = await axios.delete(`/api/${params.storeId}/billboard/${data?.id}`);
+      console.log(response.data);
+      if (response.data.status === 200) {
+        router.refresh();        
+        toast.success("Billboard deleted successfully.");
+        router.push(`/${params.storeId}/billboard/`);
       }
       
     } catch (error) {
@@ -100,7 +110,7 @@ function BillboardForm({ data }: BillboardFormProps) {
   return (
     <>
       <AlertModel
-        title={`Confirm Deletion of ${data?.title}`}
+        title={`Confirm Deletion of "${data?.title}"`}
         description={`Are you sure you want to permanently delete ${data?.title}? Once deleted, this information cannot be recovered. Please confirm your decision before proceeding.`}
         onClose={() => setIsOpen(!isOpen)}
         onComfirm={onDelete}
@@ -135,6 +145,7 @@ function BillboardForm({ data }: BillboardFormProps) {
                       value={field.value ? [field.value] : []}
                       onChange={(value) => field.onChange(value)}
                       disabled={isLoading}
+                      imageUrl={data?.imageUrl ?? ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -159,6 +170,7 @@ function BillboardForm({ data }: BillboardFormProps) {
                 </FormItem>
               )}
             />
+            
             <FormField
               name="buttonText"
               control={form.control}
@@ -212,7 +224,7 @@ function BillboardForm({ data }: BillboardFormProps) {
                         className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
                       />
                     </FormControl>
-                    <FormMessage />r
+                    <FormMessage />
                   </FormItem>
                 )}
               />

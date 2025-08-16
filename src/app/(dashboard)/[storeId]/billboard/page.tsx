@@ -30,6 +30,7 @@ async function BillboardPage({params}:{params:Promise<{storeId:string}>}) {
     link:item.link,
     imageUrl:item.imageUrl,
     buttonText:item.buttonText,
+    status:item.status,
     createdAt:format(item.createdAt, "d LLL yyyy ")
   }))
  
@@ -37,7 +38,7 @@ async function BillboardPage({params}:{params:Promise<{storeId:string}>}) {
   return (
     <div className="px-4">
       <ClientComponent BillboardData={formattedData} />
-
+    
     </div>
   )
 }

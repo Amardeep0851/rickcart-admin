@@ -12,11 +12,12 @@ interface ImageUploadProps {
   value: string[];
   onChange: (value: string) => void;
   disabled: boolean;
+  imageUrl:string
 }
 
-function ImageUpload({ value, onChange }: ImageUploadProps) {
+function ImageUpload({ value, onChange, imageUrl }: ImageUploadProps) {
   const [mounted, setMounted] = useState(false);
-  const [publicId, setPublicId] = useState(null);
+  const [publicId, setPublicId] = useState<string | null | undefined>(null);
   const params = useParams();
 
   useEffect(() => {
@@ -30,12 +31,18 @@ function ImageUpload({ value, onChange }: ImageUploadProps) {
     setPublicId(result?.info?.public_id);
     onChange(result?.info?.secure_url);
   };
-  console.log(publicId);
-
-  const onDeleteImageFromCloudniary = async (id: string) => {
+  console.log(imageUrl);
+  const onDeleteImageFromCloudniary = async (id:string) => {
+    if(imageUrl){
+      const PublicIdWithFormat = imageUrl.split("/").pop()
+      const publicId = PublicIdWithFormat?.split(".")[0];
+      setPublicId(publicId)
+    }
+      
     const response = await axios.post(
       `/api/${params.storeId}/cloudinary/${publicId}/`
     );
+
     if (response?.data?.success === true) {
       onChange("");
       setPublicId(null);

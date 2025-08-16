@@ -1,19 +1,19 @@
-"use client"
+"use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import BillboardCellAction from "./billboard-cell-action";
 import Image from "next/image";
-import { Link, Minus} from "lucide-react";
+import { Check, Link, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-export interface BillboardDataProps{
-      id:string;
-      title?:string | null;
-      link?:string | null;
-      imageUrl:string;
-      buttonText?:string | null;
-      createdAt:string
-  }
-
+export interface BillboardDataProps {
+  id: string;
+  title?: string | null;
+  link?: string | null;
+  imageUrl: string;
+  buttonText?: string | null;
+  createdAt: string;
+  status: boolean;
+}
 
 export const columns: ColumnDef<BillboardDataProps>[] = [
   {
@@ -57,30 +57,55 @@ export const columns: ColumnDef<BillboardDataProps>[] = [
     accessorKey: "title",
     header: "Title",
     cell: ({ row }) => (
-      <div className="">{row.original.title ? row.original.title : null}</div>
+      <div className="w-36 whitespace-normal break-words md:w-48 lg:w-full lg:whitespace-nowrap">{row.original.title ? row.original.title : null}</div>
     ),
   },
   {
     accessorKey: "link",
     header: "Link",
     cell: ({ row }) => (
-      <div className="">{row.original.link ? <Link className="w-4 h-4" /> : <Minus className="w-4 h-4" />}</div>
+      <div className="">
+        {row.original.link ? (
+          <Link className="w-4 h-4" />
+        ) : (
+          <Minus className="w-4 h-4" />
+        )}
+      </div>
     ),
   },
-   {
+  {
     accessorKey: "buttonText",
-    header: () => (
-      <div className="text-center">Button Text</div>
-    ),
+    header: () => <div className="text-center">Button Text</div>,
     cell: ({ row }) => (
-      <div className=" flex justify-center ">{row.original.link ? <Badge variant="secondary" >{row.original.buttonText}</Badge> : <Minus className="w-4 h-4" />}</div>
+      <div className=" flex justify-center ">
+        {row.original.buttonText ? (
+          <Badge variant="secondary">{row.original.buttonText}</Badge>
+        ) : (
+          <Minus className="w-4 h-4" />
+        )}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: () => <div className="text-center">Status</div>,
+    cell: ({ row }) => (
+      <div className=" flex justify-center ">
+        {row.original.status ? (
+          <Badge variant="secondary" className="bg-emerald-700">
+            <Check className="w-4 h-4" />
+          </Badge>
+        ) : (
+          <Badge variant="secondary" className="bg-yellow-700">
+            <Minus className="h-4 w-4" />
+          </Badge>
+        )}
+      </div>
     ),
   },
   {
     id: "actions",
-    header:() => (
-      <div className="w-14">Action</div>
-    ),
+    header: () => <div className="w-14">Action</div>,
     cell: ({ row }) => <BillboardCellAction rowData={row.original} />,
   },
 ];
