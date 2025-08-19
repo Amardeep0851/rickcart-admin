@@ -3,6 +3,7 @@ import * as z from "zod";
 import axios from "axios";
 import { toast } from "sonner";
 import { Trash } from "lucide-react";
+import qs from "query-string"
 import React, { useEffect, useState } from "react";
 import { Billboard } from "@prisma/client";
 import { useForm } from "react-hook-form";
@@ -24,7 +25,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import FormHeading from "@/components/ui/form-heading";
 import AlertModel from "@/components/ui/alert-model";
 import ImageUpload from "@/components/ui/image-upload";
-import Link from "next/link";
 
 interface BillboardFormProps {
   data?: Billboard;
@@ -42,7 +42,7 @@ function BillboardForm({ data }: BillboardFormProps) {
 
   const formSchema = z.object({
     title: z.string().min(1, { message: "Title cannot be empty." }),
-    imageUrl: z.string().min(1, { message: "Image cannot be empty." }),
+    imageUrl: z.array(z.string()).length(1, { message: "Only one image is allowed" }),
     link: z.string().optional(),
     buttonText: z.string().optional(),
     status: z.boolean().optional(),
@@ -52,16 +52,20 @@ function BillboardForm({ data }: BillboardFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: data?.title || "",
-      imageUrl: data?.imageUrl || "",
+      imageUrl: data?.imageUrl ? [data.imageUrl] : [],
       link: data?.link || "",
       buttonText: data?.buttonText || "Shop Now",
       status: data?.status ?? true,
     },
   });
 
-  const FormSubmit = async (values: z.infer<typeof formSchema>) => {
+  const FormSubmit = async (valuesBefore: z.infer<typeof formSchema>) => {
     try {
       let response;
+      let values = {
+        ...valuesBefore,
+        imageUrl:valuesBefore.imageUrl[0]
+      }
 
       if(data){
         response = await axios.patch(
@@ -85,13 +89,23 @@ function BillboardForm({ data }: BillboardFormProps) {
   };
 
   const onDelete = async () => {
+    let publicId;
     try {
-
       setIsDeleting(true);
+      
+      if(data?.imageUrl){
+      const PublicIdWithFormat = data?.imageUrl.split("/").pop()
+      publicId = PublicIdWithFormat?.split(".")[0];
+    }
 
-      const response = await axios.delete(`/api/${params.storeId}/billboard/${data?.id}`);
-      console.log(response.data);
-      if (response.data.status === 200) {
+      const url = qs.stringifyUrl({
+        url:`/api/${params.storeId}/billboard/${data?.id}`,
+        query:{
+          publicId
+        }
+      })
+      const response = await axios.delete(url);
+      if(response.data.status === 200) {
         router.refresh();        
         toast.success("Billboard deleted successfully.");
         router.push(`/${params.storeId}/billboard/`);
@@ -104,9 +118,8 @@ function BillboardForm({ data }: BillboardFormProps) {
       setIsDeleting(false);
     }
   };
-
   const isLoading = form.formState.isSubmitting;
-
+  
   return (
     <>
       <AlertModel
@@ -138,11 +151,12 @@ function BillboardForm({ data }: BillboardFormProps) {
               name="imageUrl"
               control={form.control}
               render={({ field }) => (
+                
                 <FormItem>
                   <FormLabel className="pb-2"> Upload Image </FormLabel>
                   <FormControl>
                     <ImageUpload
-                      value={field.value ? [field.value] : []}
+                      value={field.value ? field.value : []}
                       onChange={(value) => field.onChange(value)}
                       disabled={isLoading}
                       imageUrl={data?.imageUrl ?? ""}
