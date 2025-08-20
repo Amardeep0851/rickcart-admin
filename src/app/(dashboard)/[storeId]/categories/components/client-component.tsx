@@ -2,19 +2,19 @@
 import React from 'react';
 import { PlusCircle } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { Billboard } from "@prisma/client";
+import { Billboard, Category } from "@prisma/client";
 
 import DataTable from "@/components/ui/data-table";
-import { columns, BillboardDataProps as dataProps } from "./coulmn";
+import { columns, CategoryDataProps as dataProps } from "./coulmn";
 import { Button } from "@/components/ui/button";
 import PageHeading from "@/components/ui/page-heading";
 import { Separator } from "@/components/ui/separator";
 
-interface BillboardDataProps{
-  BillboardData:dataProps[]
+interface CategoryDataProps{
+  Data:dataProps[];
 }
 
-function ClientComponent({BillboardData}:BillboardDataProps) {
+function ClientComponent({Data}:CategoryDataProps) {
 
   const router = useRouter();
   const params = useParams()
@@ -22,17 +22,17 @@ function ClientComponent({BillboardData}:BillboardDataProps) {
     <div>
       <div className="flex justify-between pt-4 pb-4">
         <PageHeading 
-        title="Billboard" 
-        description="Manage all the billboards displayed in your store. You can create new billboards, edit existing ones, or remove those that are no longer needed." />
+        title="Category" 
+        description="Manage all the categories displayed in your store. You can create new categories, edit existing ones, or remove those that are no longer needed." />
         <Button 
           className="cursor-pointer" 
-          onClick={() => router.push(`/${params.storeId}/billboard/new`)} >
+          onClick={() => router.push(`/${params.storeId}/categories/new`)} >
           <PlusCircle /> Add New
         </Button>
       </div>
       <Separator />
       <div className="pt-4">
-        <DataTable data={BillboardData} columns={columns} />
+        <DataTable data={Data} columns={columns} />
       </div>
     </div>
   )

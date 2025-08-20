@@ -13,6 +13,7 @@ model Store {
   name String
   userId String
   billboard Billboard[] @relation("StoreToBillboard")
+  category Category[] @relation("StoreToCategory")
   createAt DateTime @default(now())
   updateAt DateTime @updatedAt
 }
@@ -26,6 +27,21 @@ status Boolean @default(true)
 link String?
 storeId String
 store Store @relation("StoreToBillboard", fields: [storeId], references: [id])
+category Category[]
 createdAt DateTime @default(now())
 updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id String @id @default(uuid())
+  name String
+  status Boolean @default(true)
+  storeId String
+  store Store @relation("StoreToCategory", fields: [storeId], references: [id], onDelete: Cascade)
+  billboardId String
+  billboard Billboard @relation( fields: [billboardId], references: [id], onDelete:Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([id, storeId])
 }
