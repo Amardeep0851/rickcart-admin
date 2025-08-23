@@ -5,11 +5,12 @@ import BillboardCellAction from "./cell-action";
 import Image from "next/image";
 import { Check, Link, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
 export interface CategoryDataProps {
   id: string;
   name: string ;
   billboardId: string;
-  billboardName:string;
+  billboardName:string | null;
   status:boolean;
   createdAt:string;
 }
