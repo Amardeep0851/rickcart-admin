@@ -1,3 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
+// import { auth } from "@clerk/nextjs/server";
 
-const {userId} = await auth();
+// const {userId} = await auth();

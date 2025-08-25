@@ -6,7 +6,7 @@ import { Trash } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Billboard, Category } from "@prisma/client";
 import { useForm } from "react-hook-form";
-import { useRouter, useParams, redirect } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {

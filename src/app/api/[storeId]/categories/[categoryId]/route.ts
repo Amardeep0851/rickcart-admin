@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
 import { ApiResponse } from "@/lib/ApiResponse";
 
 export async function PATCH(

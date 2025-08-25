@@ -32,6 +32,12 @@ function MainMenu() {
     label:"Product",
     active:pathname === `/${params.storeId}/products`
   
+  },
+  {
+    route:`/${params.storeId}/options`,
+    label:"Options",
+    active:pathname === `/${params.storeId}/options`
+  
   }
 ]
   return (

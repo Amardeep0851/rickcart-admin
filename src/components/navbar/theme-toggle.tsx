@@ -2,11 +2,10 @@
 import React from 'react';
 import { useTheme } from "next-themes"
 import { Sun, Moon } from "lucide-react";
-import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 
 function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { setTheme } = useTheme()
   return (
 
     <div className="relative w-7 h-8 flex items-center ">

@@ -2,21 +2,11 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import BillboardCellAction from "./cell-action";
-import { Check, Minus } from "lucide-react";
-import { CategoryDataProps as CategoryProps } from "@/lib/services/categories/type";
 
-import { Badge } from "@/components/ui/badge";
+import { OptionDataProps } from "@/lib/services/options/options-types";
 
-export interface CategoryDataProps {
-  id: string;
-  name: string ;
-  billboardId: string;
-  billboardName:string;
-  status:boolean;
-  createdAt:string;
-}
 
-export const columns: ColumnDef<CategoryProps>[] = [
+export const columns: ColumnDef<OptionDataProps>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -49,28 +39,11 @@ export const columns: ColumnDef<CategoryProps>[] = [
     ),
   },
   {
-    accessorKey: "billboardId",
-    header: "Billboard",
+    accessorKey: "values",
+    header: "Values",
     cell: ({ row }) => (
       <div className="">
-        {row.original.billboardName }
-      </div>
-    ),
-  },
-  {
-    accessorKey: "status",
-    header: () => <div className="text-center">Status</div>,
-    cell: ({ row }) => (
-      <div className=" flex justify-center ">
-        {row.original.status ? (
-          <Badge variant="secondary" className="bg-emerald-700">
-            <Check className="w-4 h-4" />
-          </Badge>
-        ) : (
-          <Badge variant="secondary" className="bg-yellow-700">
-            <Minus className="h-4 w-4" />
-          </Badge>
-        )}
+        {row.original.values }
       </div>
     ),
   },

@@ -4,7 +4,6 @@ import React from 'react';
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
-import { useModel } from "@/hooks/use-store-model";
 
 async function DashboardLayout({children}:{children:React.ReactNode}) {
 

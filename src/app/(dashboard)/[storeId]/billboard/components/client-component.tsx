@@ -2,7 +2,6 @@
 import React from 'react';
 import { PlusCircle } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { Billboard } from "@prisma/client";
 
 import DataTable from "@/components/ui/data-table";
 import { columns, BillboardDataProps as dataProps } from "./coulmn";

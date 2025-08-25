@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Check, Copy, CopyCheck, Server } from "lucide-react";
+import { Check, Copy,  Server } from "lucide-react";
 import useOrigin from "@/hooks/use-origin";
 
 interface ApiAlertProps {

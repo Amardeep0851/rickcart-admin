@@ -4,10 +4,10 @@ import axios from "axios";
 import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import qs from "query-string"
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Billboard } from "@prisma/client";
 import { useForm } from "react-hook-form";
-import { useRouter, useParams, redirect } from "next/navigation";
+import { useRouter, useParams} from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -62,7 +62,7 @@ function BillboardForm({ data }: BillboardFormProps) {
   const FormSubmit = async (valuesBefore: z.infer<typeof formSchema>) => {
     try {
       let response;
-      let values = {
+      const values = {
         ...valuesBefore,
         imageUrl:valuesBefore.imageUrl[0]
       }

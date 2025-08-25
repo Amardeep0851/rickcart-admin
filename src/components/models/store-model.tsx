@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import {zodResolver} from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { redirect, useRouter } from "next/navigation";
 
 
 import { Form, 
@@ -23,8 +22,7 @@ import { Button } from "@/components/ui/button";
 
 
 function StoreModel() {
-  const {isOpen, onOpen, onClose} = useModel();
-  const route = useRouter()
+  const {isOpen, onClose} = useModel();
   const formSchema = z.object({
     name:z.string().min(1, {message:"Name is required."})
   })
@@ -47,7 +45,7 @@ function StoreModel() {
       
       if(response.status === 200){
         toast.success('Store has created successfully.');
-        onClose
+        onClose()
         window.location.assign(`/${response.data.id}`);
       }
 

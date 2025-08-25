@@ -34,7 +34,7 @@ async function CategoryPage({params}:{params:Promise<{storeId:string}>}) {
     id:item.id,
     name:item.name,
     billboardId:item.billboardId,
-    billboardName:item.billboard.title,
+    billboardName:item?.billboard?.title,
     status:item.status,
     createdAt:format(item.createdAt, "d LLL yyyy ")
   }))

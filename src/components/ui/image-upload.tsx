@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import { Button } from "./button";
-import { ImagePlus, Trash, Trash2 } from "lucide-react";
+import { ImagePlus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
 import { useParams } from "next/navigation";
@@ -14,6 +14,17 @@ interface ImageUploadProps {
   imageUrl: string;
   multiple?: boolean;
   maxfile?: 1 | 8 | 5;
+}
+
+interface CloudinaryUploadInfo {
+  secure_url?: string;
+  public_id?: string;
+  [key: string]: unknown;
+}
+
+interface CloudinaryUploadResult {
+  event: string;
+  info?: CloudinaryUploadInfo;
 }
 
 function ImageUpload({
@@ -28,10 +39,10 @@ function ImageUpload({
 
   useEffect(() => {
     onChange(urlState);
-  }, [urlState]);
+  }, [urlState, onChange]);
 
 
-  const onSuccess = (result: any) => {
+  const onSuccess = (result:CloudinaryUploadResult) => {
     const url = result?.info?.secure_url;
     if (url) {
       setUrlState((prev) => {
@@ -110,6 +121,7 @@ function ImageUpload({
                   className="cursor-pointer "
                   type="button"
                   variant="default"
+                  disabled={disabled}
                 >
                   <ImagePlus className="w-4 h-4" />
                   Upload an Image

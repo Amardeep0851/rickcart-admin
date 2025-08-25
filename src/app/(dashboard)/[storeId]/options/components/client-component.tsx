@@ -4,17 +4,17 @@ import { PlusCircle } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
 import DataTable from "@/components/ui/data-table";
-import { CategoryDataProps } from "@/lib/services/categories/type";
+import { columns} from "./coulmn";
 import { Button } from "@/components/ui/button";
 import PageHeading from "@/components/ui/page-heading";
 import { Separator } from "@/components/ui/separator";
-import { columns } from "./coulmn";
+import { OptionDataProps } from "@/lib/services/options/options-types";
 
-interface CategoryProps{
-  Data:CategoryDataProps[];
+interface CategoryDataProps{
+  Data:OptionDataProps[];
 }
 
-function ClientComponent({Data}:CategoryProps) {
+function ClientComponent({Data}:CategoryDataProps) {
 
   const router = useRouter();
   const params = useParams()
@@ -26,7 +26,7 @@ function ClientComponent({Data}:CategoryProps) {
         description="Manage all the categories displayed in your store. You can create new categories, edit existing ones, or remove those that are no longer needed." />
         <Button 
           className="cursor-pointer" 
-          onClick={() => router.push(`/${params.storeId}/categories/new`)} >
+          onClick={() => router.push(`/${params.storeId}/options/new`)} >
           <PlusCircle /> Add New
         </Button>
       </div>

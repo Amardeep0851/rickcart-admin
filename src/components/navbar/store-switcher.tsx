@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { store } from "@prisma/client";
-import { Check, CheckCheck, ChevronsUpDown, PlusCircle, Store as StoreIcon } from "lucide-react";
+import { Store } from "@prisma/client";
+import { Check,  ChevronsUpDown, PlusCircle, Store as StoreIcon } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
 import {
@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/popover";
 import { 
   Command,
-  CommandDialog,
   CommandInput,
   CommandList,
   CommandEmpty,
@@ -20,12 +19,11 @@ import {
 } from "@/components/ui/command";
 
 import { useModel } from "@/hooks/use-store-model";
-import { Button } from "../ui/button";
 import { CommandSeparator } from "cmdk";
 import { cn } from "@/lib/utils";
 
 interface StoreSwitcherProps{
-  items:store[];
+  items:Store[];
 }
 
 function StoreSwitcher({items}:StoreSwitcherProps) {

@@ -3,7 +3,7 @@ import * as z from "zod";
 import React, { useEffect, useState } from "react";
 import { Store } from "@prisma/client";
 import { useForm } from "react-hook-form";
-import { useRouter, useParams, redirect } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -45,7 +45,7 @@ function SettingForm({ data }: settingFormProps) {
 
   useEffect(() => {
     form.setValue("name", data.name);
-  }, []);
+  }, [data.name, form]);
 
   const FormSubmit = async (values: z.infer<typeof formSchema>) => {
     try {

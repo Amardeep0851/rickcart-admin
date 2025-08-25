@@ -1,4 +1,3 @@
-import Navbar from "@/components/navbar/navbar";
 import React from 'react';
 
 import { auth } from "@clerk/nextjs/server";

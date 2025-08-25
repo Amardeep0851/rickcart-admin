@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,153 +6,280 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model Store {
-  id        String      @id @default(uuid())
-  name      String
-  userId    String
-  domain    String?     // optional custom domain
-  billboards Billboard[] @relation("StoreToBillboard")
-  categories Category[]  @relation("StoreToCategory")
-  products Product[] @relation("StoreToProduct")
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id             String          @id @default(uuid())
+  name           String
+  userId         String          
+  
+  status       Boolean         @default(true)
+  
+  billboards     Billboard[]     @relation("StoreToBillboard")
+  categories     Category[]      @relation("StoreToCategory")
+  products       Product[]       @relation("StoreToProduct")
+  productOptions ProductOption[] @relation("StoreToProductOption") 
+  
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([userId]) 
+  @@map("stores")
 }
 
 model Billboard {
-  id        String     @id @default(uuid()) // use ulid everywhere for consistency
-  title     String?
-  slug      String?    @unique // optional SEO slug
-  imageUrl  String
+  id         String     @id @default(uuid())
+  title      String
+  imageUrl   String
   buttonText String?
-  status    Boolean    @default(true)
-  link      String?
-  altText   String?
-  priority  Int        @default(0) // For ordering
-  storeId   String
-  store     Store      @relation("StoreToBillboard", fields: [storeId], references: [id])
+  status   Boolean    @default(true)
+  link       String?
+  altText    String?
+  priority   Int?        @default(0)
+  
+  storeId    String
+  store      Store      @relation("StoreToBillboard", fields: [storeId], references: [id], onDelete: Cascade)
   categories Category[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   @@index([storeId, status])
   @@map("billboards")
 }
 
 model Category {
-  id          String   @id @default(uuid())
-  name        String
-  status      Boolean  @default(true)
-  slug        String
-  description String?
-  isFeatured  Boolean  @default(false)
+  id              String     @id @default(uuid())
+  name            String
+  status        Boolean    @default(true)
+  slug            String
+  description     String?    @db.Text
+  isFeatured      Boolean?    @default(false)
   metaTitle       String?
-  metaDescription String?
+  metaDescription String?    @db.Text
   imageUrl        String?
-  sortOrder   Int      @default(0)
-  parentId    String?  // self relation for nested categories
-  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children    Category[] @relation("CategoryHierarchy")
+  sortOrder       Int        @default(0)
+  
+  // Hierarchy
+  parentId        String?
+  parent          Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children        Category[] @relation("CategoryHierarchy")
 
-  storeId     String
-  store       Store     @relation("StoreToCategory", fields: [storeId], references: [id], onDelete: Cascade)
+  storeId         String
+  store           Store      @relation("StoreToCategory", fields: [storeId], references: [id], onDelete: Cascade)
 
-  billboardId String?
-  billboard   Billboard? @relation(fields: [billboardId], references: [id], onDelete: SetNull)
+  billboardId     String?
+  billboard       Billboard? @relation(fields: [billboardId], references: [id], onDelete: SetNull)
 
-  products Product[] @relation("CategoryToProduct")
-  variants CategoryVariant[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  products        Product[]  @relation("CategoryToProduct")
+  
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
-  @@unique([storeId, slug]) // Unique slug per store
+  @@unique([storeId, slug])
   @@index([storeId, status])
+  @@index([storeId, parentId]) // ✅ FIX: Add index for hierarchy queries
+  @@index([sortOrder]) // ✅ FIX: Add index for ordering
   @@map("categories")
 }
-
 
 model Product {
   id          String  @id @default(uuid())
   name        String
   slug        String
   description String? @db.Text
-  
-  // Pricing
-  price       Int
-  comparePrice Int? // Original price for discounts
-  costPrice   Int? // Your cost (for profit calculation)
-  
+
+  // ✅ FIX: Pricing should be Decimal for precision, not Int
+  price        Decimal @db.Decimal(10,2) // Support up to 99,999,999.99
+  comparePrice Decimal? @db.Decimal(10,2)
+  costPrice    Decimal? @db.Decimal(10,2)
+
   // Inventory
-  sku         String?
-  barcode     String?
-  trackQuantity Boolean @default(true)
-  quantity    Int     @default(0)
-  lowStockAlert Int?   // Alert when stock is low
-  
+  barcode       String?  @unique // ✅ FIX: Barcode should be globally unique
+  trackQuantity Boolean  @default(true)
+  quantity      Int      @default(0)
+  lowStockAlert Int?
+
   // Status
-  isActive    Boolean @default(true)
-  isFeatured  Boolean @default(false)
-  
+  isActive   Boolean @default(true)
+  isFeatured Boolean @default(false)
+
   // SEO
   metaTitle       String?
-  metaDescription String?
-  
+  metaDescription String? @db.Text
+
   // Product attributes
-  weight      Decimal?
-  dimensions  Json?    // {length, width, height}
-  tags        String[] // Array of tags
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  weight     Decimal? @db.Decimal(8,3) // Support weight in kg/lbs
+  dimensions Json?    // {length, width, height, unit}
+  tags       String[] // Array of tags
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  storeId     String
-  store Store @relation("StoreToProduct", fields: [storeId], references: [id], onDelete: Cascade)
-  categoryId  String
-  category Category @relation("CategoryToProduct", fields: [categoryId], references: [id])
-  images   ProductImage[]
+  storeId        String
+  store          Store           @relation("StoreToProduct", fields: [storeId], references: [id], onDelete: Cascade)
+  
+  categoryId     String
+  category       Category        @relation("CategoryToProduct", fields: [categoryId], references: [id])
+
+  images         ProductImage[]
+  
+  productOptions ProductOption[] @relation("ProductToProductOption")
 
   @@unique([storeId, slug])
   @@index([storeId, isActive])
   @@index([categoryId])
   @@index([isFeatured])
+  @@index([quantity]) 
   @@map("products")
 }
 
 model ProductImage {
-  id        String @id @default(uuid())
+  id        String  @id @default(uuid())
   productId String
   url       String
   altText   String?
-  sortOrder Int    @default(0)
-  
+  sortOrder Int     @default(0)
+
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
-  @@index([productId])
+
+  @@index([productId, sortOrder]) // ✅ FIX: Optimize image ordering queries
   @@map("product_images")
 }
 
-model CategoryVariant {
-  id        String  @id @default(uuid())
-  name      String  // e.g., "Size", "Color"
-  price     Int? // Override product price
-  sku       String?
-  quantity  Int     @default(0)
+// ✅ FIX: Better product options structure
+model ProductOption {
+  id      String @id @default(uuid())
+  name    String 
   
-  categoryId String
-  category Category @relation(fields: [categoryId], references: [id])
+  storeId String
+  store   Store  @relation("StoreToProductOption", fields: [storeId], references: [id], onDelete: Cascade)
+  products Product[] @relation("ProductToProductOption")
+  values ProductOptionValue[]
   
-  value VariantValue[]  // e.g., "Large", "Red"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@unique([categoryId, name])
-  @@index([categoryId])
-  @@map("product_variants")
+  @@unique([storeId, name])
+  @@map("product_options")
 }
 
-model VariantValue {
-  id          String   @id @default(uuid())
-  value       String   // "Small", "Medium", "Large" or "Red", "Blue", etc.
-  attributeId String
-  categoryVariants CategoryVariant @relation(fields: [attributeId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+// ✅ FIX: Junction table for product-option relationships
+model ProductOptionValue {
+  id        String @id @default(uuid())
+  
+  
+  optionId  String
+  option    ProductOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  
+  value     String // "Large", "Red", etc.
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([optionId])
+  @@map("product_option_values")
 }
+
+// // ✅ FIX: Add product variants for inventory tracking
+// model ProductVariant {
+//   id        String  @id @default(uuid())
+//   productId String
+//   sku       String? @unique
+  
+//   // Variant-specific pricing and inventory
+//   price     Decimal? @db.Decimal(10,2)
+//   quantity  Int      @default(0)
+  
+//   // Variant attributes (combination of options)
+//   attributes Json // e.g., {"Size": "Large", "Color": "Red"}
+  
+//   isActive  Boolean @default(true)
+  
+//   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   @@index([productId])
+//   @@index([quantity])
+//   @@map("product_variants")
+// }
+
+// // ✅ ADD: Missing essential models for e-commerce
+// model Customer {
+//   id        String @id @default(uuid())
+//   email     String @unique
+//   firstName String?
+//   lastName  String?
+//   phone     String?
+  
+//   // Address can be JSON or separate model
+//   addresses Json? // [{street, city, state, zip, country, isDefault}]
+  
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   orders Order[]
+
+//   @@index([email])
+//   @@map("customers")
+// }
+
+// model Order {
+//   id         String @id @default(uuid())
+//   orderNumber String @unique // Human-readable order number
+  
+//   customerId String
+//   customer   Customer @relation(fields: [customerId], references: [id])
+  
+//   storeId    String // ✅ FIX: Orders belong to stores
+  
+//   // Order totals
+//   subtotal     Decimal @db.Decimal(10,2)
+//   taxAmount    Decimal @db.Decimal(10,2) @default(0)
+//   shippingCost Decimal @db.Decimal(10,2) @default(0)
+//   totalAmount  Decimal @db.Decimal(10,2)
+  
+//   // Status
+//   status        String @default("pending") // pending, confirmed, shipped, delivered, cancelled
+//   paymentStatus String @default("pending") // pending, paid, failed, refunded
+  
+//   // Addresses
+//   shippingAddress Json
+//   billingAddress  Json?
+  
+//   // Fulfillment
+//   trackingNumber String?
+//   shippedAt     DateTime?
+//   deliveredAt   DateTime?
+  
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   items OrderItem[]
+
+//   @@index([customerId])
+//   @@index([storeId])
+//   @@index([status])
+//   @@index([createdAt])
+//   @@map("orders")
+// }
+
+// model OrderItem {
+//   id         String  @id @default(uuid())
+//   orderId    String
+//   productId  String
+//   variantId  String? // If product has variants
+  
+//   quantity   Int
+//   price      Decimal @db.Decimal(10,2) // Price at time of order
+  
+//   order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+//   createdAt  DateTime @default(now())
+  
+//   @@index([orderId])
+//   @@index([productId])
+//   @@map("order_items")
+// }
