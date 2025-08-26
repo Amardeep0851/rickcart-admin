@@ -17,7 +17,7 @@ async function OptionsPage({params}:{params:Promise<{storeId:string}>}) {
 
   return (
     <div className="px-4">
-      <ClientComponent Data={formattedData} />
+      <ClientComponent Data={formattedData}  />
     
     </div>
   )

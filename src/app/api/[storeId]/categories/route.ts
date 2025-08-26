@@ -33,7 +33,8 @@ export async function POST(
         storeId:storeId,
         name,
         status,
-        billboardId
+        billboardId,
+        slug:""
       },
     });
 

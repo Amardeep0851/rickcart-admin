@@ -1,6 +1,6 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@radix-ui/react-checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import BillboardCellAction from "./cell-action";
 
 import { OptionDataProps } from "@/lib/services/options/options-types";
@@ -10,7 +10,9 @@ export const columns: ColumnDef<OptionDataProps>[] = [
   {
     id: "select",
     header: ({ table }) => (
-      <Checkbox
+      <div className="w-3">
+        <Checkbox
+      className="border-zinc-500"
         checked={
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")
@@ -18,9 +20,11 @@ export const columns: ColumnDef<OptionDataProps>[] = [
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
+      </div>
     ),
     cell: ({ row }) => (
       <Checkbox
+      className="border-zinc-500"
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
@@ -37,6 +41,7 @@ export const columns: ColumnDef<OptionDataProps>[] = [
        {row.original.name}
       </div>
     ),
+     enableGlobalFilter: true,
   },
   {
     accessorKey: "values",
@@ -46,6 +51,7 @@ export const columns: ColumnDef<OptionDataProps>[] = [
         {row.original.values }
       </div>
     ),
+     enableGlobalFilter: true,
   },
   {
     id: "actions",

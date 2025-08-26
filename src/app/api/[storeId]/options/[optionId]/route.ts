@@ -3,16 +3,16 @@ import { auth } from "@clerk/nextjs/server";
 
 import { getStoreByUserId } from "@/lib/services/store/store-services";
 import {
-  createOptionsWithValues,
   fetchOptionWithName,
+  updateOptionsWithValues,
 } from "@/lib/services/options/options-services";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ storeId: string }> }
+  { params }: { params: Promise<{ storeId: string; optionId: string }> }
 ) {
   try {
-    const { storeId } = await params;
+    const { storeId, optionId } = await params;
     const { userId } = await auth();
     const { name, values } = await req.json();
 
@@ -23,6 +23,11 @@ export async function POST(
     if (!storeId) {
       return new NextResponse("StoreId is required.", { status: 400 });
     }
+
+    if (!optionId) {
+      return new NextResponse("optionId is required.", { status: 400 });
+    }
+
     if (!name) {
       return new NextResponse("Name is required.", { status: 400 });
     }
@@ -44,7 +49,7 @@ export async function POST(
       return new NextResponse("Name is already exist.", { status: 400 });
     }
 
-    const createdOptions = await createOptionsWithValues(storeId, name, values);
+    const createdOptions = await updateOptionsWithValues(storeId, optionId, name, values);
 
     return NextResponse.json(createdOptions);
   } catch (error) {

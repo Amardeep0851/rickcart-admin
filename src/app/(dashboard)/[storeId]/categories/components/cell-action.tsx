@@ -14,7 +14,7 @@ import {
 
 import AlertModel from "@/components/ui/alert-model";
 import { Separator } from "@/components/ui/separator";
-import { CategoryDataProps } from "./coulmn";
+import { CategoryDataProps } from "@/lib/services/categories/type";
 
 interface RowDataProps {
   rowData: CategoryDataProps;

@@ -4,10 +4,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import React, { useState } from "react";
-import {
-  ProductOption,
-  ProductOptionValue,
-} from "@prisma/client";
+import { ProductOption, ProductOptionValue, } from "@prisma/client";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -124,7 +121,7 @@ const form = useForm<z.infer<typeof formSchema>>({
       <div>
         <FormHeading
           title="Create New Category"
-          description={<>Add a new option for your products.</>}
+          description={<>Add a new option and its values for your products. For example: Name- size, values- Large, Small, Medium</>}
         />
 
         <Form {...form}>

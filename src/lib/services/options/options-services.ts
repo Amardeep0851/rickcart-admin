@@ -18,7 +18,7 @@ export async function fetchAllOptionsWithValue(
   const formattedData = options?.map((option) => ({
     id:option.id,
     name:option.name,
-    values:option.values.map((value) => value.value).join(", ")
+    values:option.values.map((value) => value.value)
 
   }))
 
@@ -46,6 +46,26 @@ export async function createOptionsWithValues(
   return result
 }
 
+export async function updateOptionsWithValues(
+  storeId: string,
+  optionId:string,
+  name: string,
+  values: { value: string }[]
+) {
+  return db.productOption.update({
+    where:{
+      storeId, 
+      id:optionId
+    },
+    data:{
+      name,
+      values:{ 
+        updateMany:values
+      }
+    }
+  })
+}
+
 export async function fetchOptionWithName(storeId:string, name:string){
   const option = await db.productOption.findFirst({
     where:{
@@ -67,4 +87,15 @@ export async function fetchOptionWithId(storeId:string, id:string){
     }
   });
   return option
+}
+
+export const bulkDeleteOptions = (storeId:string, ids:string[]) => {
+  return db.productOption.deleteMany({
+    where:{
+      storeId,
+      id:{
+        in:ids
+      }
+    }
+  })
 }
