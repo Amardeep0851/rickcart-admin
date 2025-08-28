@@ -17,18 +17,18 @@ export async function POST(
     const { name, values } = await req.json();
 
     if (!userId) {
-      return new NextResponse("Unauthorized.", { status: 401 });
+      return new NextResponse("Please login to continue.", { status: 401 });
     }
 
     if (!storeId) {
-      return new NextResponse("StoreId is required.", { status: 400 });
+      return new NextResponse("Store Id is required.", { status: 400 });
     }
     if (!name) {
       return new NextResponse("Name is required.", { status: 400 });
     }
 
     if (values.length === 0) {
-      return new NextResponse("At least one value is required.", {
+        return new NextResponse("At least one value is required.", {
         status: 400,
       });
     }
@@ -39,14 +39,19 @@ export async function POST(
     if (!store) {
       return new NextResponse("Store does not found.", { status: 404 });
     }
-
     if (isOptionExist) {
       return new NextResponse("Name is already exist.", { status: 400 });
     }
+    const formatedValues = values.map(
+      (value: { id: string; value: string }) => ({ value: value.value })
+    );
+    const createdOptions = await createOptionsWithValues(
+      storeId,
+      name,
+      formatedValues
+    );
 
-    const createdOptions = await createOptionsWithValues(storeId, name, values);
-
-    return NextResponse.json(createdOptions);
+    return NextResponse.json(createdOptions, { status: 200 });
   } catch (error) {
     console.error("", error);
     return new NextResponse();

@@ -27,7 +27,7 @@ async function BillboardIdPage({params}:{params:Promise<{storeId:string, optionI
     redirect(`/${storeId}/categories`)
   }
   return (
-    <div>
+    <div className="md:w-8/12 mx-3 md:mx-auto my-4 border-2 rounded-sm">
       <CategoryForm data={optionData} />
     </div>
   )

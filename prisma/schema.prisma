@@ -8,77 +8,77 @@ datasource db {
 }
 
 model Store {
-  id             String          @id @default(uuid())
-  name           String
-  userId         String          
-  
-  status       Boolean         @default(true)
-  
+  id     String @id @default(uuid())
+  name   String
+  userId String
+
+  status Boolean @default(true)
+
   billboards     Billboard[]     @relation("StoreToBillboard")
   categories     Category[]      @relation("StoreToCategory")
   products       Product[]       @relation("StoreToProduct")
-  productOptions ProductOption[] @relation("StoreToProductOption") 
-  
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  productOptions ProductOption[] @relation("StoreToProductOption")
 
-  @@index([userId]) 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
   @@map("stores")
 }
 
 model Billboard {
-  id         String     @id @default(uuid())
+  id         String  @id @default(uuid())
   title      String
   imageUrl   String
   buttonText String?
-  status   Boolean    @default(true)
+  status     Boolean @default(true)
   link       String?
   altText    String?
-  priority   Int?        @default(0)
-  
+  priority   Int?    @default(0)
+
   storeId    String
   store      Store      @relation("StoreToBillboard", fields: [storeId], references: [id], onDelete: Cascade)
   categories Category[]
-  
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([storeId, status])
   @@map("billboards")
 }
 
 model Category {
-  id              String     @id @default(uuid())
+  id              String   @id @default(uuid())
   name            String
-  status        Boolean    @default(true)
+  status          Boolean  @default(true)
   slug            String
-  description     String?    @db.Text
-  isFeatured      Boolean?    @default(false)
+  description     String?  @db.Text
+  isFeatured      Boolean? @default(false)
   metaTitle       String?
-  metaDescription String?    @db.Text
+  metaDescription String?  @db.Text
   imageUrl        String?
-  sortOrder       Int        @default(0)
-  
+  sortOrder       Int      @default(0)
+
   // Hierarchy
-  parentId        String?
-  parent          Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children        Category[] @relation("CategoryHierarchy")
+  parentId String?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
 
-  storeId         String
-  store           Store      @relation("StoreToCategory", fields: [storeId], references: [id], onDelete: Cascade)
+  storeId String
+  store   Store  @relation("StoreToCategory", fields: [storeId], references: [id], onDelete: Cascade)
 
-  billboardId     String?
-  billboard       Billboard? @relation(fields: [billboardId], references: [id], onDelete: SetNull)
+  billboardId String?
+  billboard   Billboard? @relation(fields: [billboardId], references: [id], onDelete: SetNull)
 
-  products        Product[]  @relation("CategoryToProduct")
-  
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  products Product[] @relation("CategoryToProduct")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([storeId, slug])
   @@index([storeId, status])
-  @@index([storeId, parentId]) // ✅ FIX: Add index for hierarchy queries
-  @@index([sortOrder]) // ✅ FIX: Add index for ordering
+  @@index([storeId, parentId])
+  @@index([sortOrder]) 
   @@map("categories")
 }
 
@@ -88,15 +88,15 @@ model Product {
   slug        String
   description String? @db.Text
 
-  // ✅ FIX: Pricing should be Decimal for precision, not Int
-  price        Decimal @db.Decimal(10,2) // Support up to 99,999,999.99
-  comparePrice Decimal? @db.Decimal(10,2)
-  costPrice    Decimal? @db.Decimal(10,2)
+  // Pricing
+  price        Decimal @db.Decimal(10,2) 
+  comparePrice Decimal? @db.Decimal(10, 2)
+  costPrice    Decimal? @db.Decimal(10, 2)
 
   // Inventory
-  barcode       String?  @unique // ✅ FIX: Barcode should be globally unique
-  trackQuantity Boolean  @default(true)
-  quantity      Int      @default(0)
+  barcode       String? @unique
+  trackQuantity Boolean @default(true)
+  quantity      Int     @default(0)
   lowStockAlert Int?
 
   // Status
@@ -108,29 +108,29 @@ model Product {
   metaDescription String? @db.Text
 
   // Product attributes
-  weight     Decimal? @db.Decimal(8,3) // Support weight in kg/lbs
-  dimensions Json?    // {length, width, height, unit}
+  weight     Decimal? @db.Decimal(8, 3) // Support weight in kg/lbs
+  dimensions Json? // {length, width, height, unit}
   tags       String[] // Array of tags
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  storeId        String
-  store          Store           @relation("StoreToProduct", fields: [storeId], references: [id], onDelete: Cascade)
-  
-  categoryId     String
-  category       Category        @relation("CategoryToProduct", fields: [categoryId], references: [id])
+  storeId String
+  store   Store  @relation("StoreToProduct", fields: [storeId], references: [id], onDelete: Cascade)
 
-  images         ProductImage[]
-  
+  categoryId String
+  category   Category @relation("CategoryToProduct", fields: [categoryId], references: [id])
+
+  images ProductImage[]
+
   productOptions ProductOption[] @relation("ProductToProductOption")
 
   @@unique([storeId, slug])
   @@index([storeId, isActive])
   @@index([categoryId])
   @@index([isFeatured])
-  @@index([quantity]) 
+  @@index([quantity])
   @@map("products")
 }
 
@@ -143,37 +143,35 @@ model ProductImage {
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@index([productId, sortOrder]) // ✅ FIX: Optimize image ordering queries
+  @@index([productId, sortOrder]) 
   @@map("product_images")
 }
 
-// ✅ FIX: Better product options structure
 model ProductOption {
-  id      String @id @default(uuid())
-  name    String 
-  
-  storeId String
-  store   Store  @relation("StoreToProductOption", fields: [storeId], references: [id], onDelete: Cascade)
-  products Product[] @relation("ProductToProductOption")
-  values ProductOptionValue[]
-  
+  id   String @id @default(uuid())
+  name String
+
+  storeId  String
+  store    Store                @relation("StoreToProductOption", fields: [storeId], references: [id], onDelete: Cascade)
+  products Product[]            @relation("ProductToProductOption")
+  values   ProductOptionValue[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([storeId, name])
+  @@unique([storeId, id])
   @@map("product_options")
 }
 
-// ✅ FIX: Junction table for product-option relationships
 model ProductOptionValue {
-  id        String @id @default(uuid())
-  
-  
-  optionId  String
-  option    ProductOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
-  
-  value     String // "Large", "Red", etc.
-  
+  id String @id @default(uuid())
+
+  optionId String
+  option   ProductOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  value String // "Large", "Red", etc.
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -186,18 +184,18 @@ model ProductOptionValue {
 //   id        String  @id @default(uuid())
 //   productId String
 //   sku       String? @unique
-  
+
 //   // Variant-specific pricing and inventory
 //   price     Decimal? @db.Decimal(10,2)
 //   quantity  Int      @default(0)
-  
+
 //   // Variant attributes (combination of options)
 //   attributes Json // e.g., {"Size": "Large", "Color": "Red"}
-  
+
 //   isActive  Boolean @default(true)
-  
+
 //   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
+
 //   createdAt DateTime @default(now())
 //   updatedAt DateTime @updatedAt
 
@@ -213,10 +211,10 @@ model ProductOptionValue {
 //   firstName String?
 //   lastName  String?
 //   phone     String?
-  
+
 //   // Address can be JSON or separate model
 //   addresses Json? // [{street, city, state, zip, country, isDefault}]
-  
+
 //   createdAt DateTime @default(now())
 //   updatedAt DateTime @updatedAt
 
@@ -229,31 +227,31 @@ model ProductOptionValue {
 // model Order {
 //   id         String @id @default(uuid())
 //   orderNumber String @unique // Human-readable order number
-  
+
 //   customerId String
 //   customer   Customer @relation(fields: [customerId], references: [id])
-  
+
 //   storeId    String // ✅ FIX: Orders belong to stores
-  
+
 //   // Order totals
 //   subtotal     Decimal @db.Decimal(10,2)
 //   taxAmount    Decimal @db.Decimal(10,2) @default(0)
 //   shippingCost Decimal @db.Decimal(10,2) @default(0)
 //   totalAmount  Decimal @db.Decimal(10,2)
-  
+
 //   // Status
 //   status        String @default("pending") // pending, confirmed, shipped, delivered, cancelled
 //   paymentStatus String @default("pending") // pending, paid, failed, refunded
-  
+
 //   // Addresses
 //   shippingAddress Json
 //   billingAddress  Json?
-  
+
 //   // Fulfillment
 //   trackingNumber String?
 //   shippedAt     DateTime?
 //   deliveredAt   DateTime?
-  
+
 //   createdAt DateTime @default(now())
 //   updatedAt DateTime @updatedAt
 
@@ -271,14 +269,14 @@ model ProductOptionValue {
 //   orderId    String
 //   productId  String
 //   variantId  String? // If product has variants
-  
+
 //   quantity   Int
 //   price      Decimal @db.Decimal(10,2) // Price at time of order
-  
+
 //   order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  
+
 //   createdAt  DateTime @default(now())
-  
+
 //   @@index([orderId])
 //   @@index([productId])
 //   @@map("order_items")

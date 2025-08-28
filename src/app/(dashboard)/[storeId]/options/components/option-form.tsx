@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import React, { useState } from "react";
-import { ProductOption, ProductOptionValue, } from "@prisma/client";
+import { ProductOption, ProductOptionValue } from "@prisma/client";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,12 +26,11 @@ import AlertModel from "@/components/ui/alert-model";
 
 interface OptionFormProps {
   data?: ProductOption & {
-    values: ProductOptionValue[]; 
+    values: ProductOptionValue[];
   };
 }
 
 function OptionForm({ data }: OptionFormProps) {
-  
   const router = useRouter();
   const params = useParams();
   const [isOpen, setIsOpen] = useState(false);
@@ -45,31 +44,32 @@ function OptionForm({ data }: OptionFormProps) {
     name: z.string().min(1, { message: "Name is required." }),
     values: z.array(
       z.object({
+        id:z.string().optional(),
         value: z.string().min(1, { message: "Value is required." }),
       })
     ),
   });
 
-const form = useForm<z.infer<typeof formSchema>>({
-  resolver: zodResolver(formSchema),
-  defaultValues: {
-    name: data?.name || "",
-    values: data?.values.map((v) => ({ value: v.value })) ?? [{ value: "" }],
-  },
-});
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: data?.name || "",
+      values: data?.values.map((v) => ({  id: v.id, value: v.value })) ?? [{ value: "" }],
+    },
+  });
 
-  const { fields, append, remove } = useFieldArray< z.infer<typeof formSchema>, "values">({
+  const { fields, append, remove } = useFieldArray< z.infer<typeof formSchema>, "values" >({
     control: form.control,
     name: "values",
   });
 
   const FormSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
     try {
       let response;
 
       if (data) {
-        response = await axios.patch( `/api/${params.storeId}/options/${data.id}`,
+        response = await axios.patch(
+          `/api/${params.storeId}/options/${data.id}`,
           values
         );
       } else {
@@ -80,9 +80,9 @@ const form = useForm<z.infer<typeof formSchema>>({
         toast.success(toastMessage);
         router.push(`/${params.storeId}/options/`);
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong. Please try again.");
+    } catch (err:any) {
+      const message = err.response?.data || "Something went wrong. Please try again.";
+      toast.error(message); 
     }
   };
 
@@ -90,17 +90,19 @@ const form = useForm<z.infer<typeof formSchema>>({
     try {
       setIsDeleting(true);
 
-      const response = await axios.delete(
-        `/api/${params.storeId}/categories/${data?.id}`
-      );
+      const response = await axios.delete( `/api/${params.storeId}/options/${data?.id}`);
+      
       if (response.status === 200) {
         router.refresh();
         toast.success("Category deleted successfully.");
-        router.push(`/${params.storeId}/categories/`);
+        router.push(`/${params.storeId}/options/`);
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong. Please try again.");
+    } catch (error:any) {
+      if(process.env.NODE_ENV === "development"){
+        console.error("[FRONTEND_ERROR_DELETING_OPTIONS]", error)
+      }
+      const message = error.response.data || "Something went wrong. Please try again."
+      toast.error(message);
     } finally {
       setIsDeleting(false);
     }
@@ -121,7 +123,12 @@ const form = useForm<z.infer<typeof formSchema>>({
       <div>
         <FormHeading
           title="Create New Category"
-          description={<>Add a new option and its values for your products. For example: Name- size, values- Large, Small, Medium</>}
+          description={
+            <>
+              Add a new option and its values for your products. For example:
+              Name- size, values- Large, Small, Medium
+            </>
+          }
         />
 
         <Form {...form}>
@@ -151,8 +158,9 @@ const form = useForm<z.infer<typeof formSchema>>({
               <FormLabel>Values</FormLabel>
               {fields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-center">
+                  <input type="hidden" {...form.register(`values.${index}.id`)} />
                   <FormField
-                    name={`values.${index}.value`} 
+                    name={`values.${index}.value`}
                     control={form.control}
                     render={({ field }) => (
                       <FormItem className="flex-1">
@@ -160,7 +168,7 @@ const form = useForm<z.infer<typeof formSchema>>({
                           <Input
                             disabled={isLoading}
                             placeholder={`Value ${index + 1}`}
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />

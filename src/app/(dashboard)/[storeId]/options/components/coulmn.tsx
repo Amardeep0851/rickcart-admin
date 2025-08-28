@@ -48,10 +48,10 @@ export const columns: ColumnDef<OptionDataProps>[] = [
     header: "Values",
     cell: ({ row }) => (
       <div className="">
-        {row.original.values }
+        {row.original.values.join(", ") }
       </div>
     ),
-     enableGlobalFilter: true,
+    enableGlobalFilter: true,
   },
   {
     id: "actions",

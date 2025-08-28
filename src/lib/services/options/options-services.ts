@@ -50,8 +50,9 @@ export async function updateOptionsWithValues(
   storeId: string,
   optionId:string,
   name: string,
-  values: { value: string }[]
+  values: { id:string | null, value: string }[]
 ) {
+  const idsToKeep = values.map(v => v.id).filter((id): id is string => Boolean(id)); 
   return db.productOption.update({
     where:{
       storeId, 
@@ -59,11 +60,48 @@ export async function updateOptionsWithValues(
     },
     data:{
       name,
-      values:{ 
-        updateMany:values
-      }
+        values:{
+          upsert: values.map(v => ({
+          where: { id: v.id ?? "__fake__" }, 
+          update: { value: v.value },
+          create: { value: v.value }
+        })),
+        deleteMany:{
+          id:{notIn:idsToKeep }
+        }
+        }
     }
   })
+
+//   return db.productOption.update({
+//   where: {
+//     storeId,
+//     id: optionId,
+//   },
+//   data: {
+//     name,
+//     values: {
+//       // 1. Delete ones not in frontend
+//       deleteMany: {
+//         id: { notIn: values.filter(v => v.id).map(v => v.id) },
+//       },
+
+//       // 2. Update existing
+//       updateMany: values
+//         .filter(v => v.id)
+//         .map(v => ({
+//           where: { id: v.id },
+//           data: { value: v.value },
+//         })),
+
+//       // 3. Create new
+//       create: values
+//         .filter(v => !v.id)
+//         .map(v => ({ value: v.value })),
+//     },
+//   },
+// });
+
 }
 
 export async function fetchOptionWithName(storeId:string, name:string){
@@ -71,6 +109,15 @@ export async function fetchOptionWithName(storeId:string, name:string){
     where:{
       name,
     storeId,
+    }
+  });
+  return option
+}
+
+export async function fetchOptionWithIdAndName(id:string){
+  const option = await db.productOption.findFirst({
+    where:{
+      id,
     }
   });
   return option
@@ -96,6 +143,15 @@ export const bulkDeleteOptions = (storeId:string, ids:string[]) => {
       id:{
         in:ids
       }
+    }
+  })
+}
+
+export const deleteOptionWithId = (storeId:string, optionId:string) => {
+  return db.productOption.delete({
+    where:{
+      storeId,
+      id:optionId
     }
   })
 }

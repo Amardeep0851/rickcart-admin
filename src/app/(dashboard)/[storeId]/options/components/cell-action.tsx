@@ -38,14 +38,17 @@ function CategoryCellAction({ rowData }: RowDataProps) {
         `/api/${params.storeId}/options/${rowData?.id}`
       );
 
-      if (response.data.statusCode === 200) {
+      if (response.status === 200) {
         router.refresh();
         toast.success("Option is deleted successfully.");
         // router.push(`/${params.storeId}/categories/`);
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong. Please try again.");
+    } catch (error:any) {
+      if(process.env.NODE_ENV === "development"){
+        console.error("[FRONTEND_DELETING_OPTION_TABLE]", error)
+      }
+      const message = error.response.data || "Something went wrong. Please try again."
+      toast.error(message);
     } finally {
       setIsDeleting(false);
     }
