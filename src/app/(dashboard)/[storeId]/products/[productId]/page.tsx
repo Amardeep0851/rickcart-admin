@@ -2,15 +2,15 @@ import React from 'react'
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation";
 
-import OptionForm from "../components/option-form";
+import ProductForm from "../components/product-form";
 
 import { getStoreByUserId } from "@/lib/services/store/store-services";
-import { fetchOptionWithId } from "@/lib/services/options/options-services";
+import { fetchProductWithId } from "@/lib/services/products/product-services";
 
-async function BillboardIdPage({params}:{params:Promise<{storeId:string, optionId:string}>}) {
+async function BillboardIdPage({params}:{params:Promise<{storeId:string, productId:string}>}) {
 
   const {userId} = await auth();
-  const {storeId, optionId} = await params
+  const {storeId, productId} = await params
 
   if(!userId){
     redirect("/sign-in")
@@ -22,13 +22,13 @@ async function BillboardIdPage({params}:{params:Promise<{storeId:string, optionI
     redirect("/")
   }
 
-  const optionData = await fetchOptionWithId(storeId, optionId)
-  if(!optionData){
-    redirect(`/${storeId}/options`)
+  const productData = await fetchProductWithId(storeId, productId)
+  if(!productData){
+    redirect(`/${storeId}/categories`)
   }
   return (
     <div className="md:w-8/12 mx-3 md:mx-auto my-4 border-2 rounded-sm">
-      <OptionForm data={optionData} />
+      <ProductForm data={productData} />
     </div>
   )
 }

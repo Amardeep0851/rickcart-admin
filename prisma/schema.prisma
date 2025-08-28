@@ -84,9 +84,11 @@ model Category {
 
 model Product {
   id          String  @id @default(uuid())
+  userId      String
   name        String
   slug        String
   description String? @db.Text
+  
 
   // Pricing
   price        Decimal @db.Decimal(10,2) 
@@ -106,11 +108,11 @@ model Product {
   // SEO
   metaTitle       String?
   metaDescription String? @db.Text
+  tags       String[] // Array of tags
 
   // Product attributes
   weight     Decimal? @db.Decimal(8, 3) // Support weight in kg/lbs
   dimensions Json? // {length, width, height, unit}
-  tags       String[] // Array of tags
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -127,6 +129,7 @@ model Product {
   productOptions ProductOption[] @relation("ProductToProductOption")
 
   @@unique([storeId, slug])
+  @@unique([storeId, userId])
   @@index([storeId, isActive])
   @@index([categoryId])
   @@index([isFeatured])

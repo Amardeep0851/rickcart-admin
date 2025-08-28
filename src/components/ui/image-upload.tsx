@@ -11,7 +11,7 @@ interface ImageUploadProps {
   value: string[];
   onChange: (value: string[]) => void;
   disabled: boolean;
-  imageUrl: string;
+  imageUrl?: string;
   multiple?: boolean;
   maxfile?: 1 | 8 | 5;
 }
