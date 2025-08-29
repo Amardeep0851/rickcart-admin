@@ -24,7 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 import FormHeading from "@/components/ui/form-heading";
 import AlertModel from "@/components/ui/alert-model";
-import ImageUpload from "@/components/ui/image-upload";
+import ImageUpload, { ImageType } from "@/components/ui/image-upload";
 
 interface BillboardFormProps {
   data?: Billboard;
@@ -160,6 +160,7 @@ function BillboardForm({ data }: BillboardFormProps) {
                       onChange={(value) => field.onChange(value)}
                       disabled={isLoading}
                       imageUrl={data?.imageUrl ?? ""}
+                      imageType={ImageType.BILLBOARD}
                     />
                   </FormControl>
                   <FormMessage />

@@ -4,9 +4,10 @@ import axios from "axios";
 import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import React, { useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Category, ProductOption } from "@prisma/client";
 
 import {
   Form,
@@ -23,14 +24,25 @@ import { Button } from "@/components/ui/button";
 import FormHeading from "@/components/ui/form-heading";
 import AlertModel from "@/components/ui/alert-model";
 import { ProductProps } from "@/lib/services/products/product-types";
-import ImageUpload from "@/components/ui/image-upload";
+import ImageUpload, { ImageType } from "@/components/ui/image-upload";
 import { Checkbox } from "@/components/ui/checkbox";
+import CurrentyInput from "@/components/ui/currency-input";
+import Tiptap from "@/components/text-editor/tiptap";
+import SearchableSelect from "@/components/ui/searchable-select";
 
 interface ProductFormProps {
   data?: ProductProps;
+  options:{
+    lable:string;
+    value:string;
+  }[];
+  categories:{
+    lable:string;
+    value:string;
+  }[];
 }
 
-function ProductForm({ data }: ProductFormProps) {
+function ProductForm({options, categories, data }: ProductFormProps) {
   const router = useRouter();
   const params = useParams();
   const [isOpen, setIsOpen] = useState(false);
@@ -42,7 +54,10 @@ function ProductForm({ data }: ProductFormProps) {
 
   const formSchema = z.object({
     name: z.string().min(1, { message: "Name is required." }),
-    images: z.array(z.string()).length(1, { message: "Only one image is allowed" }),
+    description: z.string().min(1, { message: "Name is required." }),
+    images: z
+      .array(z.string())
+      .length(1, { message: "Only one image is allowed" }),
     price: z.number().min(1, { message: "Price is required." }),
     comparePrice: z.number().optional(),
     costPrice: z.number().optional(),
@@ -55,34 +70,34 @@ function ProductForm({ data }: ProductFormProps) {
     metaDescription: z.string().optional(),
     tags: z.array(z.string()).min(1, { message: "Tags are required" }),
     categoryId: z.string().min(1, { message: "Category is required." }),
-    options: z.array(z.string()).min(1, { message: "At least one option is required" }),
+    options: z
+      .array(z.string())
+      .min(1, { message: "At least one option is required" }),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues:{
-    name: data?.name || "",
-    images: data?.images ? data.images.map((image) => image.url) : [],          
-    price: data?.price ? Number(data.price) : 0,
-    comparePrice: data?.comparePrice ? Number(data.comparePrice) : 0,
-    costPrice: data?.costPrice ? Number(data.costPrice) : 0,
-    trackQuantity: data?.trackQuantity ?? false, 
-    quantity: data?.quantity || 0,
-    lowStockAlert: data?.lowStockAlert || 0,
-    isActive: data?.isActive ?? true,
-    isFeatured: data?.isFeatured ?? false,
-    metaTitle: data?.metaTitle || "",
-    metaDescription: data?.metaDescription || "",
-    tags: data?.tags || [],                  
-    categoryId: data?.categoryId || "",
-    options: data?.productOptions.map((option) => option.id) || [],
-    }
+    defaultValues: {
+      name: data?.name || "",
+      description: data?.description || "",
+      images: data?.images ? data.images.map((image) => image.url) : [],
+      price: data?.price ? Number(data.price) : 0,
+      comparePrice: data?.comparePrice ? Number(data.comparePrice) : 0,
+      costPrice: data?.costPrice ? Number(data.costPrice) : 0,
+      trackQuantity: data?.trackQuantity ?? false,
+      quantity: data?.quantity || 0,
+      lowStockAlert: data?.lowStockAlert || 0,
+      isActive: data?.isActive ?? true,
+      isFeatured: data?.isFeatured ?? false,
+      metaTitle: data?.metaTitle || "",
+      metaDescription: data?.metaDescription || "",
+      tags: data?.tags || [],
+      categoryId: data?.categoryId || "",
+      options: data?.productOptions.map((option) => option.id) || [],
+    },
   });
 
-  const { fields, append, remove } = useFieldArray< z.infer<typeof formSchema>,"options" >({
-    control: form.control,
-    name: "options",
-  });
+ 
 
   const FormSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -173,6 +188,7 @@ function ProductForm({ data }: ProductFormProps) {
                       disabled={isLoading}
                       multiple={true}
                       maxfile={5}
+                      imageType={ImageType.PRODUCT}
                     />
                   </FormControl>
                   <FormMessage />
@@ -188,9 +204,26 @@ function ProductForm({ data }: ProductFormProps) {
                   <FormControl>
                     <Input
                       disabled={isLoading}
-                      placeholder="Enter Category title..."
+                      placeholder="Enter product title..."
                       className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
                       {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              name="description"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="pb-2 "> Name </FormLabel>
+                  <FormControl>
+                   
+                    <Tiptap 
+                    description={field.value}
+                    onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />
@@ -202,13 +235,20 @@ function ProductForm({ data }: ProductFormProps) {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
+                  <FormLabel className="pb-2"> Price </FormLabel>
                   <FormControl>
-                    <Input
+                    <CurrentyInput
+                      value={
+                        field.value !== undefined ? field.value.toString() : ""
+                      }
+                      onChange={(value) => {
+                        const numericvalue = value
+                          ? parseFloat(value)
+                          : undefined;
+                        field.onChange(numericvalue);
+                      }}
                       disabled={isLoading}
-                      placeholder="Enter Category title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
+                      name="price"
                     />
                   </FormControl>
                   <FormMessage />
@@ -220,13 +260,20 @@ function ProductForm({ data }: ProductFormProps) {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
+                  <FormLabel className="pb-2"> Price for discount </FormLabel>
                   <FormControl>
-                    <Input
+                    <CurrentyInput
+                      value={
+                        field.value !== undefined ? field.value.toString() : ""
+                      }
+                      onChange={(value) => {
+                        const numericvalue = value
+                          ? parseFloat(value)
+                          : undefined;
+                        field.onChange(numericvalue);
+                      }}
                       disabled={isLoading}
-                      placeholder="Enter Category title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
+                      name="comparePrice"
                     />
                   </FormControl>
                   <FormMessage />
@@ -238,7 +285,33 @@ function ProductForm({ data }: ProductFormProps) {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
+                  <FormLabel className="pb-2"> Cost price </FormLabel>
+                  <FormControl>
+                    <CurrentyInput
+                      value={
+                        field.value !== undefined ? field.value.toString() : ""
+                      }
+                      onChange={(value) => {
+                        const numericvalue = value
+                          ? parseFloat(value)
+                          : undefined;
+                        field.onChange(numericvalue);
+                      }}
+                      disabled={isLoading}
+                      name="costPrice"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              name="quantity"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="pb-2"> Stock </FormLabel>
                   <FormControl>
                     <Input
                       disabled={isLoading}
@@ -256,79 +329,7 @@ function ProductForm({ data }: ProductFormProps) {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="Enter Category title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="quantity"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="Enter Category title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="metaTitle"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="Enter Category title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="metaDescription"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="Enter Category title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="tags"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
+                  <FormLabel className="pb-2"> Alert stock value </FormLabel>
                   <FormControl>
                     <Input
                       disabled={isLoading}
@@ -346,7 +347,43 @@ function ProductForm({ data }: ProductFormProps) {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
+                  <FormLabel className="pb-2"> Category name </FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isLoading}
+                      placeholder="Enter Category title..."
+                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="options"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="pb-2"> Meta Title </FormLabel>
+                  <FormControl>
+                    <SearchableSelect
+                    optinos={options}
+                    disabled={isloading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="metaTitle"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="pb-2"> Meta Title </FormLabel>
                   <FormControl>
                     <Input
                       disabled={isLoading}
@@ -360,11 +397,29 @@ function ProductForm({ data }: ProductFormProps) {
               )}
             />
             <FormField
-              name="options"
+              name="metaDescription"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
+                  <FormLabel className="pb-2"> Meta dscription </FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isLoading}
+                      placeholder="Enter Category title..."
+                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="tags"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="pb-2"> Meta tags </FormLabel>
                   <FormControl>
                     <Input
                       disabled={isLoading}
@@ -382,13 +437,13 @@ function ProductForm({ data }: ProductFormProps) {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
+                  <FormLabel className="pb-2"> Stock Alert </FormLabel>
                   <FormControl>
                     <Checkbox
-                       checked={field.value ?? true}
-                        onCheckedChange={(checked) => field.onChange(!!checked)}
-                        disabled={isLoading}
-                        className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
+                      checked={field.value ?? true}
+                      onCheckedChange={(checked) => field.onChange(!!checked)}
+                      disabled={isLoading}
+                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
                     />
                   </FormControl>
                   <FormMessage />
@@ -400,13 +455,13 @@ function ProductForm({ data }: ProductFormProps) {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
+                  <FormLabel className="pb-2"> Is Active </FormLabel>
                   <FormControl>
-                     <Checkbox
-                       checked={field.value ?? true}
-                        onCheckedChange={(checked) => field.onChange(!!checked)}
-                        disabled={isLoading}
-                        className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
+                    <Checkbox
+                      checked={field.value ?? true}
+                      onCheckedChange={(checked) => field.onChange(!!checked)}
+                      disabled={isLoading}
+                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
                     />
                   </FormControl>
                   <FormMessage />
@@ -418,65 +473,19 @@ function ProductForm({ data }: ProductFormProps) {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Name </FormLabel>
+                  <FormLabel className="pb-2"> Is Featured </FormLabel>
                   <FormControl>
-                     <Checkbox
-                       checked={field.value ?? true}
-                        onCheckedChange={(checked) => field.onChange(!!checked)}
-                        disabled={isLoading}
-                        className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
+                    <Checkbox
+                      checked={field.value ?? true}
+                      onCheckedChange={(checked) => field.onChange(!!checked)}
+                      disabled={isLoading}
+                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <div className="space-y-4">
-              <FormLabel>Values</FormLabel>
-              {fields.map((field, index) => (
-                <div key={field.id} className="flex gap-2 items-center">
-                  <input
-                    type="hidden"
-                    {...form.register(`options.${index}.id`)}
-                  />
-                  <FormField
-                    name={`options.${index}.value`}
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <Input
-                            disabled={isLoading}
-                            placeholder={`Value ${index + 1}`}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => remove(index)}
-                    disabled={isLoading || fields.length === 1}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => append({ value: "" })}
-                disabled={isLoading}
-              >
-                + Add Value
-              </Button>
-            </div>
 
             <div className="flex justify-end space-x-4 mt-5">
               {!!data && (
