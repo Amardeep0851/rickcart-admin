@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 import { Category, ProductOption } from "@prisma/client";
+import { MultiValue } from "react-select";
 
 const animatedComponents = makeAnimated();
 type SearchableSelectProps = {
@@ -24,7 +25,7 @@ function SearchableSelect({options, disabled, onChange, value}:SearchableSelectP
       defaultValue={[value]}
       isMulti
       isDisabled={disabled}
-      onChange={}
+      onChange={onChange}
       options={options}
     />
   )

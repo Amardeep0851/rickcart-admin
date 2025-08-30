@@ -371,6 +371,8 @@ function ProductForm({options, categories, data }: ProductFormProps) {
                     <SearchableSelect
                     optinos={options}
                     disabled={isloading}
+                    onChange={(option) => field.onChange(option)}
+                    value={field.value}
                     />
                   </FormControl>
                   <FormMessage />
