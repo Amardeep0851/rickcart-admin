@@ -10,6 +10,7 @@ import { fetchAllCategories } from "@/lib/services/categories/category-services"
 async function NewOption({params}:{params:Promise<{storeId:string}>}) {
   const {storeId}= await params;
   const {userId} = await auth();
+  
   if(!userId){
     redirect("/sign-in")
   }
@@ -18,13 +19,13 @@ async function NewOption({params}:{params:Promise<{storeId:string}>}) {
   const categories = await fetchAllCategories(storeId, userId);
 
   const formattedOptins = options?.map((option) => ({
-    lable:option.name,
-    value:option.id
+    value:option.id,
+    label:option.name,
   }))
 
   const formattedCategories = categories?.map((category) => ({
-    lable:category.name,
-    value:category.id
+    value:category.id,
+    label:category.name,
   }))
 
   return (

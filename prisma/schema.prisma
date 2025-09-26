@@ -35,7 +35,7 @@ model Billboard {
   link       String?
   altText    String?
   priority   Int?    @default(0)
-
+  
   storeId    String
   store      Store      @relation("StoreToBillboard", fields: [storeId], references: [id], onDelete: Cascade)
   categories Category[]
@@ -47,9 +47,50 @@ model Billboard {
   @@map("billboards")
 }
 
+enum Icon {
+ShoppingCart
+ShoppingBag
+Package
+Boxes
+Tag
+Percent
+Gift
+BadgeDollarSign
+CreditCard
+Wallet
+User
+Users
+UserPlus
+LogIn
+LogOut
+Settings
+Heart
+Star
+Home
+Search
+Filter
+LayoutDashboard
+Grid
+List
+Bookmark
+Bell
+Truck
+Receipt
+ClipboardList
+CheckCircle
+XCircle
+MonitorSmartphone
+Printer
+Tablet
+SmartPhone
+Camera
+Bed
+Lamp
+}
 model Category {
   id              String   @id @default(uuid())
   name            String
+  icon            Icon
   status          Boolean  @default(true)
   slug            String
   description     String?  @db.Text
@@ -76,9 +117,9 @@ model Category {
   updatedAt DateTime @updatedAt
 
   @@unique([storeId, slug])
+  @@index([id, status])
   @@index([storeId, status])
-  @@index([storeId, parentId])
-  @@index([sortOrder]) 
+  @@index([id, parentId])
   @@map("categories")
 }
 
@@ -129,7 +170,6 @@ model Product {
   productOptions ProductOption[] @relation("ProductToProductOption")
 
   @@unique([storeId, slug])
-  @@unique([storeId, userId])
   @@index([storeId, isActive])
   @@index([categoryId])
   @@index([isFeatured])

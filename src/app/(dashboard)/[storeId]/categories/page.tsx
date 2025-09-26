@@ -33,6 +33,7 @@ async function CategoryPage({params}:{params:Promise<{storeId:string}>}) {
   const formattedData = categories.map((item) => ({
     id:item.id,
     name:item.name,
+    icon:item.icon,
     billboardId:item.billboardId,
     billboardName:item?.billboard?.title,
     status:item.status,

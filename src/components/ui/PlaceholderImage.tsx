@@ -33,7 +33,7 @@ export function PlaceholderImage({ type, className }: PlaceholderImageProps) {
       alt=""
       width={width}
       height={height}
-      className={cn("rounded-sm ",ConditionalClassName, className)}
+      className={cn("rounded-sm border-2 border-zinc-500 dark:border-0 bg-white mb-4",ConditionalClassName, className)}
     />
   );
 }

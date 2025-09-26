@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { ApiResponse } from "@/lib/ApiResponse";
+import slugify from "slugify";
 
 export async function PATCH(
   req: Request,
@@ -10,7 +11,11 @@ export async function PATCH(
   try {
     const { userId } = await auth();
     const { storeId, categoryId } = await params;
-    const { billboardId, name,status } = await req.json();
+    const { billboardId, name, status } = await req.json();
+     const slug = slugify(name, {
+          lower:true, 
+          strict:true
+        })
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -64,6 +69,7 @@ export async function PATCH(
         name,
         billboardId,
         status,
+        slug
       },
     });
     return NextResponse.json(new ApiResponse(200, updatedCategory, "Category is updated successfully"));

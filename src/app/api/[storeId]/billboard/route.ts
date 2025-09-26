@@ -12,9 +12,7 @@ export async function POST(
     const { imageUrl, title, buttonText, link } = await req.json();
 
 
-    if (!userId) {
-      return new NextResponse("Unauthorized access.", { status: 401 });
-    }
+    
 
     if (!imageUrl) {
       return new NextResponse("Image is required.", { status: 400 });
@@ -34,7 +32,7 @@ export async function POST(
       },
     });
 
-    return NextResponse.json({ createdBillboard, status: 200, message:"Billboard is created successfully." });
+    return NextResponse.json(createdBillboard, {status: 200 });
   } catch (error) {
     console.error("[CREATING_BILLBOARD_ERROR]", error);
     return new NextResponse("An unexpected error occurred. Please try again later.",{status:500})

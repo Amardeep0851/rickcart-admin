@@ -1,5 +1,7 @@
 "use client"
-import React from 'react';
+import axios from "axios";
+import { toast } from "sonner";
+import React, { useState } from 'react';
 import { PlusCircle } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
@@ -16,7 +18,34 @@ interface BillboardDataProps{
 function ClientComponent({BillboardData}:BillboardDataProps) {
 
   const router = useRouter();
-  const params = useParams()
+  const params = useParams();
+  const { storeId } = params;
+  const [loading, setloading] = useState(false);
+
+  const onDelete = async (ids: string[]) => {
+    try {
+      setloading(true);
+      const response = await axios.post(`/api/${storeId}/billboard/bulk-delete`, {ids});
+
+      if (response.status === 200) {
+        toast.success(
+          `${ids.length} ${
+            ids.length > 1 ? "rows are " : "row is"
+          }  deleted successfully.`
+        );
+        router.refresh();
+      }
+
+    } catch (error:any) {
+      if(process.env.NODE_ENV === "development"){
+        console.log("[DELETEING_BULK-PRODUCT]", error);
+      }
+      const message = error.response.data || "Something went wrong. Please try again.";
+      toast.warning(message)
+    } finally {
+      setloading(false);
+    }
+  };
   return (
     <div>
       <div className="flex justify-between pt-4 pb-4">
@@ -31,7 +60,7 @@ function ClientComponent({BillboardData}:BillboardDataProps) {
       </div>
       <Separator />
       <div className="pt-4">
-        <DataTable data={BillboardData} columns={columns} />
+        <DataTable data={BillboardData} columns={columns} searchKey="title" onDelete={(ids) => onDelete(ids)} disabled={loading} />
       </div>
     </div>
   )

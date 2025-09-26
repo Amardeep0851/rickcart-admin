@@ -28,7 +28,7 @@ function Model({ title, description, isOpen, onClose, children }:ModelProps) {
       <DialogContent className="py-4 px-4">
         <DialogHeader>
           <DialogTitle className="text-center pb-3 border-b-[1px]">
-            {title}
+            {title.length >45 ? `${title.substring(0,45)}...`  : title}
           </DialogTitle>
           <DialogDescription className="text-sm ">
             {description}

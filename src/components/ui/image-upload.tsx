@@ -87,8 +87,9 @@ function ImageUpload({
               width="200"
               height="67"
               alt="image"
+
               className={cn(
-                "rounded-sm object-cover",
+                "rounded-sm object-cover border-2 border-zinc-500",
                 imageType === ImageType.BILLBOARD && "w-[200px] h-[67px]",
                 imageType === ImageType.PRODUCT && " w-[150px] h-[150px]"
               )}

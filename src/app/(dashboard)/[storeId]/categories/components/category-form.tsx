@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { Billboard, Category } from "@prisma/client";
+import { Billboard, Category, Icon } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import FormHeading from "@/components/ui/form-heading";
 import AlertModel from "@/components/ui/alert-model";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ICONS } from "@/components/ui/icon";
 
 interface CategoryFormProps {
   data?: Category;
@@ -52,7 +53,9 @@ function CategoryForm({ data }: CategoryFormProps) {
   const formSchema = z.object({
     name: z.string().min(1, { message: "Name is required." }),
     billboardId: z.string().min(1, { message: "Billboard is required." }),
-    status:z.boolean()
+    icon: z.nativeEnum(Icon),
+    status:z.boolean(),
+
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -60,6 +63,7 @@ function CategoryForm({ data }: CategoryFormProps) {
     defaultValues: {
       name: data?.name || "",
       billboardId: data?.billboardId ?? "",
+      icon: (data?.icon as Icon) ?? Icon.ShoppingCart,
       status: data?.status ?? true,
     },
   });
@@ -84,9 +88,10 @@ function CategoryForm({ data }: CategoryFormProps) {
         toast.success(toastMessage);
         router.push(`/${params.storeId}/categories/`);
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong. Please try again.");
+    } catch (error:any) {
+      // console.error(error);
+      const message = error.response.data || "Something went wrong. Please try again."
+      toast.error(message);
     }
   };
 
@@ -106,7 +111,6 @@ function CategoryForm({ data }: CategoryFormProps) {
   }, [params.storeId]);
 
     const onDelete = async () => {
-
     try {
       setIsDeleting(true);
 
@@ -115,7 +119,7 @@ function CategoryForm({ data }: CategoryFormProps) {
       );
       if (response.data.statusCode === 200) {
         router.refresh();
-        toast.success("Category deleted successfully.");
+        toast.success("Category is deleted successfully.");
         router.push(`/${params.storeId}/categories/`);
       }
     } catch (error) {
@@ -194,6 +198,38 @@ function CategoryForm({ data }: CategoryFormProps) {
                                 {item.title}
                               </SelectItem>
                             ))
+                          }
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="icon"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="pb-2"> Select Icon</FormLabel>
+                    <FormControl>
+                      <Select 
+                        disabled={loading} 
+                        onValueChange={field.onChange}  
+                        value={field.value}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger  className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0 w-full">
+                          <SelectValue placeholder="Choose a billboard" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {
+                            Object.keys(Icon)?.map((item) => {
+                              const IconComponent = ICONS[item]
+                              return <SelectItem key={item} value={item}>
+                                <span><IconComponent /></span>{item}
+                              </SelectItem>
+                            })
                           }
                         </SelectContent>
                       </Select>

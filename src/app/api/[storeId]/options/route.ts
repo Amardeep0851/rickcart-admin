@@ -53,7 +53,7 @@ export async function POST(
 
     return NextResponse.json(createdOptions, { status: 200 });
   } catch (error) {
-    console.error("", error);
+    console.error("[BACKEND_OPTION_ERROR]", error);
     return new NextResponse();
   }
 }

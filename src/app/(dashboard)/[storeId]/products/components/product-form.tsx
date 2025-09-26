@@ -7,7 +7,9 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Category, ProductOption } from "@prisma/client";
+
+import { FormProductProps } from "@/lib/services/products/product-types";
+import { formSchema } from "@/lib/services/products/product-schema";
 
 import {
   Form,
@@ -18,31 +20,34 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 import FormHeading from "@/components/ui/form-heading";
 import AlertModel from "@/components/ui/alert-model";
-import { ProductProps } from "@/lib/services/products/product-types";
 import ImageUpload, { ImageType } from "@/components/ui/image-upload";
-import { Checkbox } from "@/components/ui/checkbox";
 import CurrentyInput from "@/components/ui/currency-input";
 import Tiptap from "@/components/text-editor/tiptap";
 import SearchableSelect from "@/components/ui/searchable-select";
+import TagsInput from "@/components/ui/tag-input";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ProductFormProps {
-  data?: ProductProps;
-  options:{
-    lable:string;
-    value:string;
+  data?: FormProductProps;
+  options: {
+    label: string;
+    value: string;
   }[];
-  categories:{
-    lable:string;
-    value:string;
+  categories: {
+    label: string;
+    value: string;
   }[];
 }
 
-function ProductForm({options, categories, data }: ProductFormProps) {
+function ProductForm({ data, options, categories }: ProductFormProps) {
   const router = useRouter();
   const params = useParams();
   const [isOpen, setIsOpen] = useState(false);
@@ -52,28 +57,7 @@ function ProductForm({options, categories, data }: ProductFormProps) {
     ? "Product is updated successfully"
     : "New product is created successfully";
 
-  const formSchema = z.object({
-    name: z.string().min(1, { message: "Name is required." }),
-    description: z.string().min(1, { message: "Name is required." }),
-    images: z
-      .array(z.string())
-      .length(1, { message: "Only one image is allowed" }),
-    price: z.number().min(1, { message: "Price is required." }),
-    comparePrice: z.number().optional(),
-    costPrice: z.number().optional(),
-    trackQuantity: z.boolean(),
-    quantity: z.number().min(1, { message: "Quantity is required." }),
-    lowStockAlert: z.number().optional(),
-    isActive: z.boolean(),
-    isFeatured: z.boolean(),
-    metaTitle: z.string().optional(),
-    metaDescription: z.string().optional(),
-    tags: z.array(z.string()).min(1, { message: "Tags are required" }),
-    categoryId: z.string().min(1, { message: "Category is required." }),
-    options: z
-      .array(z.string())
-      .min(1, { message: "At least one option is required" }),
-  });
+  
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -92,23 +76,19 @@ function ProductForm({options, categories, data }: ProductFormProps) {
       metaTitle: data?.metaTitle || "",
       metaDescription: data?.metaDescription || "",
       tags: data?.tags || [],
-      categoryId: data?.categoryId || "",
-      options: data?.productOptions.map((option) => option.id) || [],
+      categoryId: data?.category.id || "",
+      options: data?.options.map((option) => ({ value: option.id, label: option.name, })) || [],
     },
   });
 
- 
-
   const FormSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      let response;
 
+      let response;
       if (data) {
-        response = await axios.patch(
-          `/api/${params.storeId}/products/${data.id}`,
-          values
-        );
-      } else {
+        response = await axios.patch( `/api/${params.storeId}/products/${data.id}`, values );
+      } 
+      else {
         response = await axios.post(`/api/${params.storeId}/products/`, values);
       }
       if (response.status === 200) {
@@ -117,10 +97,11 @@ function ProductForm({options, categories, data }: ProductFormProps) {
         router.push(`/${params.storeId}/products/`);
       }
     } catch (err: any) {
+      console.log(err);
       const message =
         err.response?.data || "Something went wrong. Please try again.";
-      toast.error(message);
-    }
+        toast.error(message);
+    } 
   };
 
   const onDelete = async () => {
@@ -133,7 +114,7 @@ function ProductForm({options, categories, data }: ProductFormProps) {
 
       if (response.status === 200) {
         router.refresh();
-        toast.success("Category deleted successfully.");
+        toast.success("Product deleted successfully.");
         router.push(`/${params.storeId}/products/`);
       }
     } catch (error: any) {
@@ -147,6 +128,7 @@ function ProductForm({options, categories, data }: ProductFormProps) {
       setIsDeleting(false);
     }
   };
+  
 
   const isLoading = form.formState.isSubmitting;
 
@@ -162,7 +144,7 @@ function ProductForm({options, categories, data }: ProductFormProps) {
       />
       <div>
         <FormHeading
-          title="Create New Category"
+          title="Create New Product"
           description={
             <>
               Add a new product, upload image and other data for your products.
@@ -213,17 +195,16 @@ function ProductForm({options, categories, data }: ProductFormProps) {
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
               name="description"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2 "> Name </FormLabel>
+                  <FormLabel className="pb-2 "> Descriptions </FormLabel>
                   <FormControl>
-                   
-                    <Tiptap 
-                    description={field.value}
-                    onChange={field.onChange}
+                    <Tiptap
+                      description={field.value}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />
@@ -305,7 +286,7 @@ function ProductForm({options, categories, data }: ProductFormProps) {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               name="quantity"
               control={form.control}
@@ -314,10 +295,15 @@ function ProductForm({options, categories, data }: ProductFormProps) {
                   <FormLabel className="pb-2"> Stock </FormLabel>
                   <FormControl>
                     <Input
-                      disabled={isLoading}
-                      placeholder="Enter Category title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
+                      type="number"
                       {...field}
+                      onChange={(value) =>
+                        field.onChange(Number(value.target.value))
+                      }
+                      value={field.value}
+                      disabled={isLoading}
+                      placeholder="Enter quantity in stock."
+                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
                     />
                   </FormControl>
                   <FormMessage />
@@ -332,10 +318,15 @@ function ProductForm({options, categories, data }: ProductFormProps) {
                   <FormLabel className="pb-2"> Alert stock value </FormLabel>
                   <FormControl>
                     <Input
-                      disabled={isLoading}
-                      placeholder="Enter Category title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
+                      type="number"
                       {...field}
+                      onChange={(value) =>
+                        field.onChange(Number(value.target.value))
+                      }
+                      value={field.value}
+                      disabled={isLoading}
+                      placeholder="Enter number, when low stock start showing alert."
+                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
                     />
                   </FormControl>
                   <FormMessage />
@@ -348,14 +339,23 @@ function ProductForm({options, categories, data }: ProductFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="pb-2"> Category name </FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="Enter Category title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
-                    />
-                  </FormControl>
+                  
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Category" />
+                      </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {
+                          (categories || []).map((category, index) => (
+                            <SelectItem key={index} value={category.value}>
+                              {category.label}
+                            </SelectItem>
+                          ))
+                        }
+                      </SelectContent>
+                    </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -366,13 +366,13 @@ function ProductForm({options, categories, data }: ProductFormProps) {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Meta Title </FormLabel>
+                  <FormLabel className="pb-2">Options</FormLabel>
                   <FormControl>
                     <SearchableSelect
-                    optinos={options}
-                    disabled={isloading}
-                    onChange={(option) => field.onChange(option)}
-                    value={field.value}
+                      options={options}
+                      disabled={isLoading}
+                      onChange={(val) => field.onChange(val)}
+                      value={field.value || []}
                     />
                   </FormControl>
                   <FormMessage />
@@ -385,29 +385,11 @@ function ProductForm({options, categories, data }: ProductFormProps) {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Meta Title </FormLabel>
+                  <FormLabel className="pb-2"> Meta Title</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isLoading}
-                      placeholder="Enter Category title..."
-                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="metaDescription"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="pb-2"> Meta dscription </FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="Enter Category title..."
+                      placeholder="Enter Meta title."
                       className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
                       {...field}
                     />
@@ -419,13 +401,33 @@ function ProductForm({options, categories, data }: ProductFormProps) {
             <FormField
               name="tags"
               control={form.control}
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel className="pb-2"> Meta tags (Example - Product, Shirt, Shoes) </FormLabel>
+                    <FormControl>
+                      <TagsInput
+                        value={field.value || []}
+                        onChange={field.onChange}
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                    
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+
+            <FormField
+              name="metaDescription"
+              control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pb-2"> Meta tags </FormLabel>
+                  <FormLabel className="pb-2"> Meta dscription </FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       disabled={isLoading}
-                      placeholder="Enter Category title..."
                       className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
                       {...field}
                     />

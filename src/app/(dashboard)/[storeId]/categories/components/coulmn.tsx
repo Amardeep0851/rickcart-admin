@@ -1,19 +1,21 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@radix-ui/react-checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import BillboardCellAction from "./cell-action";
 import { Check, Minus } from "lucide-react";
 import { CategoryDataProps as CategoryProps } from "@/lib/services/categories/type";
 
 import { Badge } from "@/components/ui/badge";
+import { ICONS } from "@/components/ui/icon";
 
 export interface CategoryDataProps {
   id: string;
-  name: string ;
+  name: string;
+  icon:string;
   billboardId: string;
-  billboardName:string;
-  status:boolean;
-  createdAt:string;
+  billboardName: string;
+  status: boolean;
+  createdAt: string;
 }
 
 export const columns: ColumnDef<CategoryProps>[] = [
@@ -42,20 +44,31 @@ export const columns: ColumnDef<CategoryProps>[] = [
   {
     accessorKey: "name",
     header: "Name",
-    cell: ({ row }) => (
-      <div className="w-28">
-       {row.original.name}
-      </div>
-    ),
+    cell: ({ row }) => <div className="w-28">{row.original.name}</div>,
   },
   {
     accessorKey: "billboardId",
     header: "Billboard",
-    cell: ({ row }) => (
-      <div className="">
-        {row.original.billboardName }
-      </div>
-    ),
+    cell: ({ row }) => <div className="">{row.original.billboardName}</div>,
+  },
+  {
+    accessorKey:"icon",
+    header:"Icon",
+    cell:({row}) => {
+      const fetchedIcon = row.original.icon;
+      const IconComponent = fetchedIcon ? ICONS[fetchedIcon] : null;
+        return ( 
+          <div>
+            { 
+               IconComponent 
+              ? <IconComponent className="size-5" /> 
+              : <Badge  variant="secondary" className="bg-yellow-700">
+                <Minus className="h-4 w-4" />
+                </Badge>
+            }
+          </div>
+    )
+    }
   },
   {
     accessorKey: "status",

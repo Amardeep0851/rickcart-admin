@@ -1,10 +1,10 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@radix-ui/react-checkbox";
 import BillboardCellAction from "./billboard-cell-action";
 import Image from "next/image";
 import { Check, Link, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 export interface BillboardDataProps {
   id: string;
   title?: string | null;

@@ -14,7 +14,7 @@ async function ProductPage({params}:{params:Promise<{storeId:string}>}) {
     redirect("/sign-in")
   }
 
-  const formattedData = await fetchAllProductsWithValue(storeId, userId);
+  const formattedData = await fetchAllProductsWithValue(storeId);
 
   return (
     <div className="px-4">

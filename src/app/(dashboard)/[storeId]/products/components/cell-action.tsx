@@ -14,10 +14,10 @@ import {
 
 import AlertModel from "@/components/ui/alert-model";
 import { Separator } from "@/components/ui/separator";
-import { OptionDataProps } from "@/lib/services/options/options-types";
+import { ProductDataProps} from "@/lib/services/products/product-types";
 
 interface RowDataProps {
-  rowData: OptionDataProps;
+  rowData: ProductDataProps;
 }
 
 function CategoryCellAction({ rowData }: RowDataProps) {
@@ -28,24 +28,24 @@ function CategoryCellAction({ rowData }: RowDataProps) {
   const params = useParams();
 
   const handleEdit = () => {
-    router.push(`/${params.storeId}/options/${rowData.id}`);
+    router.push(`/${params.storeId}/products/${rowData.id}`);
   };
 
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
       const response = await axios.delete(
-        `/api/${params.storeId}/options/${rowData?.id}`
+        `/api/${params.storeId}/products/${rowData?.id}`
       );
 
       if (response.status === 200) {
         router.refresh();
-        toast.success("Option is deleted successfully.");
+        toast.success("Product is deleted successfully.");
         // router.push(`/${params.storeId}/categories/`);
       }
     } catch (error:any) {
       if(process.env.NODE_ENV === "development"){
-        console.error("[FRONTEND_DELETING_OPTION_TABLE]", error)
+        console.error("[FRONTEND_DELETING_PRODUCT_TABLE]", error)
       }
       const message = error.response.data || "Something went wrong. Please try again."
       toast.error(message);
