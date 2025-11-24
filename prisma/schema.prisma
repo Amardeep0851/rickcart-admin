@@ -4,9 +4,92 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
 }
 
+model User{
+  id String @id @default(uuid())
+  email String @unique
+  emailVerified Boolean @default(false)
+  hashedPassword String
+  firstName String
+  lastName String
+  phone String?
+  secondPhone String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sessions Session[]
+  otps Otp?
+  accounts Account[]
+  address Address[]
+  @@index([email])
+  @@map("users")
+}
+
+model Session {
+  id String @default(uuid())
+  hashedSessionToken String @unique
+  userId String
+  userAgent String?
+  ip String?
+  createdAt DateTime @default(now())
+  expiresAt    DateTime
+
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId])
+  @@index([hashedSessionToken])  
+  @@map("sessions")
+  
+}
+
+model Otp {
+  id String @id @default(uuid())
+  userId String @unique
+  otp String
+  failedAttempts Int @default(0)
+  hashedToken String?
+  type OtpType
+  expiresAt DateTime
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("otps") // keep the same table
+}
+
+enum OtpType {
+  Password
+  Email
+}
+
+model Account {
+  id String  @id @default(uuid())
+  userId String
+  provider String
+  providerAccountId String
+  accessToken String?
+  refreshToken String?
+  expiresAt Int?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+model Address {
+  id String   @id @default(uuid())
+  userId String
+  house String
+  city String
+  state String
+  zip String
+  country String
+  isDefault Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
 model Store {
   id     String @id @default(uuid())
   name   String
@@ -48,44 +131,44 @@ model Billboard {
 }
 
 enum Icon {
-ShoppingCart
-ShoppingBag
-Package
-Boxes
-Tag
-Percent
-Gift
-BadgeDollarSign
-CreditCard
-Wallet
-User
-Users
-UserPlus
-LogIn
-LogOut
-Settings
-Heart
-Star
-Home
-Search
-Filter
-LayoutDashboard
-Grid
-List
-Bookmark
-Bell
-Truck
-Receipt
-ClipboardList
-CheckCircle
-XCircle
-MonitorSmartphone
-Printer
-Tablet
-SmartPhone
-Camera
-Bed
-Lamp
+  ShoppingCart
+  ShoppingBag
+  Package
+  Boxes
+  Tag
+  Percent
+  Gift
+  BadgeDollarSign
+  CreditCard
+  Wallet
+  User
+  Users
+  UserPlus
+  LogIn
+  LogOut
+  Settings
+  Heart
+  Star
+  Home
+  Search
+  Filter
+  LayoutDashboard
+  Grid
+  List
+  Bookmark
+  Bell
+  Truck
+  Receipt
+  ClipboardList
+  CheckCircle
+  XCircle
+  MonitorSmartphone
+  Printer
+  Tablet
+  SmartPhone
+  Camera
+  Bed
+  Lamp
 }
 model Category {
   id              String   @id @default(uuid())
@@ -168,7 +251,6 @@ model Product {
   images ProductImage[]
 
   productOptions ProductOption[] @relation("ProductToProductOption")
-
   @@unique([storeId, slug])
   @@index([storeId, isActive])
   @@index([categoryId])
@@ -247,32 +329,15 @@ model ProductOptionValue {
 //   @@map("product_variants")
 // }
 
-// // ✅ ADD: Missing essential models for e-commerce
-// model Customer {
-//   id        String @id @default(uuid())
-//   email     String @unique
-//   firstName String?
-//   lastName  String?
-//   phone     String?
+// ✅ ADD: Missing essential models for e-commerce
 
-//   // Address can be JSON or separate model
-//   addresses Json? // [{street, city, state, zip, country, isDefault}]
-
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-
-//   orders Order[]
-
-//   @@index([email])
-//   @@map("customers")
-// }
 
 // model Order {
 //   id         String @id @default(uuid())
 //   orderNumber String @unique // Human-readable order number
 
-//   customerId String
-//   customer   Customer @relation(fields: [customerId], references: [id])
+//   userId String
+//   user   Customer @relation(fields: [customerId], references: [id])
 
 //   storeId    String // ✅ FIX: Orders belong to stores
 

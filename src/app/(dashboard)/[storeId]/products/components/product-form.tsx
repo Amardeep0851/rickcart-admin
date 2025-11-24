@@ -379,7 +379,24 @@ function ProductForm({ data, options, categories }: ProductFormProps) {
                 </FormItem>
               )}
             />
-
+            <FormField
+              name="metaTitle"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="pb-2"> Meta Title</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isLoading}
+                      placeholder="Enter Meta title."
+                      className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               name="metaTitle"
               control={form.control}

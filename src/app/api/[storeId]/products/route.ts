@@ -55,7 +55,7 @@ export async function GET(req:Request, {params}:{params:Promise<{storeId:string}
     }
     
     const response = await fetchAllProductsWithValue(storeId);
-
+    console.log(response);
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error("[BACKEND_PRODUCT_GET_WRROR]", error);

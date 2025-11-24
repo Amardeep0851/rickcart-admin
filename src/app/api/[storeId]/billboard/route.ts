@@ -12,7 +12,9 @@ export async function POST(
     const { imageUrl, title, buttonText, link } = await req.json();
 
 
-    
+    if(!userId){
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
     if (!imageUrl) {
       return new NextResponse("Image is required.", { status: 400 });
@@ -41,12 +43,10 @@ export async function POST(
 
 export async function GET(req:Request, { params }: { params: Promise<{ storeId: string }> }) {
   try {
-    const {userId} = await auth();
+    
     const { storeId } = await params;
 
-    if(!userId){
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+    
 
     if(!storeId) {
       return new NextResponse("Store ID is required", { status: 400 });
@@ -54,10 +54,7 @@ export async function GET(req:Request, { params }: { params: Promise<{ storeId: 
 
     const data = await db.billboard.findMany({
       where: {
-        storeId: storeId,
-        store: {
-          userId: userId
-        }
+        storeId: storeId
       }
     });
 
@@ -68,3 +65,4 @@ export async function GET(req:Request, { params }: { params: Promise<{ storeId: 
   }
   
 }
+

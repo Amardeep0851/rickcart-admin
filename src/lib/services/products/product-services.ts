@@ -39,6 +39,7 @@ export const fetchAllProductsWithValue = async (
     images: item.images,
     options: item.productOptions,
     category: item.category,
+    slug:item.slug
   }));
 
   return formattedData;
@@ -81,6 +82,8 @@ export async function fetchProductWithId(
   };
 }
 
+//This function is used in two places. One is while getting a single product to show in the front, and second is while updating product in productID/route.ts
+
 export const fetchSlugAndStoreId = async (storeId: string, slug: string) => {
   return await db.product.findUnique({
     where: {
@@ -89,6 +92,11 @@ export const fetchSlugAndStoreId = async (storeId: string, slug: string) => {
         slug,
       },
     },
+    include:{
+      images:true,
+      category:true,
+      productOptions:true
+    }
   });
 };
 

@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import { ApiResponse } from "@/lib/ApiResponse";
 import slugify from "slugify";
 
+
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ storeId: string; categoryId: string }> }

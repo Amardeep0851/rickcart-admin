@@ -11,6 +11,32 @@ import {
 
 import { formSchema } from "@/lib/services/products/product-schema";
 
+
+export async function GET(
+  req:Request, 
+  {params}:{params:Promise<{storeId:string; productId:string}>}
+){
+
+  // --------------------------- Import to read ------------------------------
+  //Here we are using directly productID instead of slug. But we are fetchign data with slug not productId because that is also unique.
+
+  try {
+    const {productId, storeId} = await params;
+    if(!productId){
+      return new NextResponse("Product ID is required.",{status:400})
+    }
+    if(!storeId){
+      return new NextResponse("Store ID is required.",{status:400})
+    }
+
+    const response = await fetchSlugAndStoreId(storeId, productId);
+    return NextResponse.json({data:response}, {status:200})
+  } catch (error) {
+    console.error("[BACKEND_PRODUCT_GET_ERROR]", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ storeId: string; productId: string }> }
@@ -182,3 +208,4 @@ export async function DELETE(req:Request, {params}:{params:Promise<{productId:st
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
+
