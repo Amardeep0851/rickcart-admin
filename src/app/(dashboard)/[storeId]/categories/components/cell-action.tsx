@@ -28,7 +28,6 @@ function CategoryCellAction({ rowData }: RowDataProps) {
   const params = useParams();
 
   const handleEdit = () => {
-    console.log(`/${params.storeId}/categories/${rowData.id}`);
     router.push(`/${params.storeId}/categories/${rowData.id}`);
   };
 

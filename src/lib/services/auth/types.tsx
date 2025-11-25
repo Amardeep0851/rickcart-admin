@@ -10,5 +10,5 @@ export type UserForCreateAccount = {
 
 export type User = UserPrisma
 export type UserOTP = UserPrisma & {
-otps:Otp
+otps:Otp | null
 }

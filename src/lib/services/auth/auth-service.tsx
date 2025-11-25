@@ -74,7 +74,7 @@ export const updateNotVerifiedUser = async (data: UserForCreateAccount,
 }
 
 
-export const updateOtpForFailedAttempt = async (userId:string ) => {
+export const updateUserForFailedAttempt = async (userId:string ):Promise<UserOTP | null> => {
   return await db.user.update({
     where:{
       id:userId
@@ -87,22 +87,55 @@ export const updateOtpForFailedAttempt = async (userId:string ) => {
           }
         }
       }
+    },
+    include:{
+      otps:true
     }
   })
 }
 
-export const deleteOtp = async (userId:string) => {
+export const deleteOtpAndUpdateUser = async (userId:string, hashedToken:string, expiresAt:Date) => {
   return await db.user.update({
     where:{
       id:userId
     },
     data:{
       emailVerified:true,
+      
       otps:{
         delete:{
           type:OtpType.Email
         }
+      },
+      sessions:{
+        create:{
+          hashedSessionToken:hashedToken,
+          expiresAt:expiresAt
+        }
       }
     }
   })
+}
+
+
+export const findUser = async (hashedToken:string) => {
+  return await db.session.findUnique({
+        where: { hashedSessionToken:  hashedToken },
+        include: { 
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              emailVerified :true
+              // DO NOT select hashedPassword
+            }
+          } 
+        }
+      });
+}
+
+export const deleteSession = async (sessionId:string) => {
+ return  await db.session.delete({ where: { hashedSessionToken: sessionId } });
 }

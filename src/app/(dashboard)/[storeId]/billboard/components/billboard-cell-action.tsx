@@ -29,7 +29,6 @@ function BillboardCellAction({ rowData }: RowDataProps) {
   const params = useParams();
 
   const handleEdit = () => {
-    console.log(`/${params.storeId}/billboard/${rowData.id}`);
     router.push(`/${params.storeId}/billboard/${rowData.id}`);
   };
 

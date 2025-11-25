@@ -8,7 +8,6 @@ const allowedOrigins = [process.env.NEXT_PUBLIC_ALLOW_URL_FROM_FRONTEND]; // dev
 
 export default clerkMiddleware(async (auth, request) => {
   const origin = request.headers.get("origin") || "";
-  console.log(origin);
   // Handle protected routes
   if (isProtectedRoute(request)) {
     await auth.protect();

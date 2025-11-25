@@ -55,7 +55,6 @@ export async function PATCH(
         status,
       },
     });
-    console.log(updatedBillboard);
     return NextResponse.json({
       updatedBillboard,
       status: 200,
@@ -78,7 +77,7 @@ export async function DELETE(
     const publicId = searchParams.get("publicId");
     let deletedBillboard, isDeleted;
 
-    console.log(publicId, storeId, billboardId);
+    
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });

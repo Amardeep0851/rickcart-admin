@@ -141,7 +141,6 @@ export const updateProduct = async (
   storeId: string,
   userId: string
 ) => {
-  console.log(body);
 
   const modifiedData: Prisma.ProductUpdateInput = { ...body };
 

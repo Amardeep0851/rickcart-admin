@@ -53,7 +53,6 @@ function SettingForm({ data }: settingFormProps) {
         `/api/store/${params.storeId}`,
         values
       );
-      console.log(response.data);
       router.refresh();
       toast.success("Store information is updated successfully.");
     } catch (error) {

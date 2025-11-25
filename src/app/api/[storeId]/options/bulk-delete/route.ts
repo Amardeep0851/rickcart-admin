@@ -12,7 +12,6 @@ export async function POST(
     if(!storeId){
       return new NextResponse("StoreId is required.", {status:400})
     }
-    console.log(typeof ids, "idsss");
     if(!ids || ids.length === 0){
       return new NextResponse("Zero row to delete data", {status:400})
     }
