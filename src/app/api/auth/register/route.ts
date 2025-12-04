@@ -7,11 +7,11 @@ import {
 } 
 from "@/lib/services/auth/auth-service";
 
+import { generateExpireDate} from "@/lib/utils"
 import { 
-  generateExpireDate, 
   generateOtp, 
   hashPassword 
-} from "@/lib/utils";
+} from "@/lib/server-utils/utils";
 
 import { sendMail } from "@/lib/send-mail";
 import { registerSchema } from "@/lib/services/auth/schema";

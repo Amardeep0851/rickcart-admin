@@ -68,7 +68,7 @@ model Account {
   providerAccountId String
   accessToken String?
   refreshToken String?
-  expiresAt Int?
+  expiresAt DateTime?
 
   user User @relation(fields: [userId], references: [id])
 

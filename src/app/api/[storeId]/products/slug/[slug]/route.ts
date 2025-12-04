@@ -14,23 +14,31 @@ export async function GET(
     if (!storeId) {
       return new NextResponse("Invalid request", { status: 400});
     }
-
-    const response = await db.category.findUnique({
+    const category= await db.category.findUnique({
       where: {
         storeId_slug: {
           storeId,
           slug,
         },
-      },
-      include:{
-        billboard:true,
-        products:true
+        status:true
       }
     });
-    if(!response){
-      return new NextResponse("Something went wrong. Please try again.",{status:404})
+    if(!category){
+      return new NextResponse("Not Found.",{status:404})
     }
-    console.log(response);
+    const response = await db.product.findMany({
+      where:{
+        categoryId:category.id,
+        isActive:true
+      },
+      include:{
+        images:true,
+        category:true
+      }
+    })
+    if(!response){
+      return new NextResponse("Something went wrong. Please try again.",{status:500})
+    }
     return NextResponse.json(response, {status:200})
   } catch (error) {
     console.log("[FETCHING_CATEGORY_SLUG]", error);

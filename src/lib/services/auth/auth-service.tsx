@@ -18,6 +18,15 @@ export const fetchAccountWithEmail = async (email: string):Promise<UserOTP | nul
   return response;
 };
 
+export const fetchUserWithEmail = async (email:string) => {
+  return await db.user.findFirst({
+    where:{
+      email:email,
+      emailVerified:true
+    }
+  })
+}
+
 export const createUser = async (
   data: UserForCreateAccount,
   otp: string,
@@ -117,6 +126,23 @@ export const deleteOtpAndUpdateUser = async (userId:string, hashedToken:string, 
   })
 }
 
+export const userUpdateSessionAndDeletePreviousSession = async (userId:string, hashedToken:string, expiresAt:Date) => {
+  return await db.user.update({
+  where: { id: userId, emailVerified:true },
+  data: {
+    sessions: {
+      deleteMany: {
+        expiresAt: { lt: new Date() }
+      },
+      create: {
+        hashedSessionToken: hashedToken,
+        expiresAt
+      }
+    }
+  }
+});
+
+}
 
 export const findUser = async (hashedToken:string) => {
   return await db.session.findUnique({

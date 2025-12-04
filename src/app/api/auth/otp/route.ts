@@ -5,8 +5,8 @@ import {
   fetchAccountWithEmail , 
   updateUserForFailedAttempt 
 } from '@/lib/services/auth/auth-service';
-import { createTokenPair, generateExpireDate, hashToken } from "@/lib/utils";
-import { cookies } from "next/headers";
+import {generateExpireDate} from "@/lib/utils";
+import {  createTokenPair, hashToken } from "@/lib/server-utils/utils";
 
 export async function POST(req:Request){
 

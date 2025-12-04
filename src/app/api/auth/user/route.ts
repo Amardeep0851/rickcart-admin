@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { hashToken } from "@/lib/utils";
+import { hashToken } from "@/lib/server-utils/utils";
 import { deleteSession, findUser } from "@/lib/services/auth/auth-service";
-import { db } from "@/lib/db";
 
 export async function GET(req:NextRequest) {
   try {
@@ -10,13 +9,11 @@ export async function GET(req:NextRequest) {
     const cookieStore = await cookies(); 
 
     const token = cookieStore.get("SessionToken")?.value;
-    console.log(token);
 
     if (!token) {
       return NextResponse.json({ user: null }, { status: 401 });
     }
    const hashedToken = hashToken(token);
-   console.log("This is hashed token",hashedToken );
 
     // 2. Find Session & User in DB
     // We also check if the session is expired
