@@ -49,10 +49,7 @@ function SettingForm({ data }: settingFormProps) {
 
   const FormSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await axios.patch(
-        `/api/store/${params.storeId}`,
-        values
-      );
+      await axios.patch(`/api/store/${params.storeId}`, values);
       router.refresh();
       toast.success("Store information is updated successfully.");
     } catch (error) {

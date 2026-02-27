@@ -21,7 +21,7 @@ async function NewOption({params}:{params:Promise<{storeId:string}>}) {
   const formattedOptins = options?.map((option) => ({
     value:option.id,
     label:option.name,
-  }))
+  })) ?? []
 
   // const optionValues = options?.map((option) => ({
   //   id:option.id,
@@ -34,7 +34,7 @@ async function NewOption({params}:{params:Promise<{storeId:string}>}) {
   const formattedCategories = categories?.map((category) => ({
     value:category.id,
     label:category.name,
-  }))
+  })) ?? []
 
   return (
     <div className="md:w-8/12 mx-3 md:mx-auto my-4 border-2 rounded-sm">

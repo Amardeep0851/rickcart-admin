@@ -26,7 +26,7 @@ function CurrentyInput({
         decimalScale={2}
         prefix="₹ "
         disabled={disabled}
-        onValueChange={(value, name, values) => onChange(value)}
+        onValueChange={(value) => onChange(value)}
         className="focus-visible:border-[2px]/10 focus-visible:ring-0 focus-visible:outline-0 border-[1px] py-1.5 shadow-sm  focus:border-zinc-400 rounded-sm dark:bg-zinc-900 px-3"
       />
     </>

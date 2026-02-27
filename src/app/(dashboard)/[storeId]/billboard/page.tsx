@@ -1,9 +1,7 @@
 import React from 'react'
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import {format} from "date-fns"
 
-import { db } from "@/lib/db";
 import ClientComponent from "./components/client-component"
 import { fetchBillboards } from "@/lib/services/billboards/billboard-services";
 

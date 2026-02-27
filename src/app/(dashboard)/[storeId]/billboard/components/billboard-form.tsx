@@ -75,8 +75,8 @@ function BillboardForm({ data }: BillboardFormProps) {
         response = await axios.post(
         `/api/${params.storeId}/billboard/`, values );
       }
-
-      if (response.data.status === 200) {
+      console.log(response, response.status, response.data);
+      if (response.status === 200) {
         router.refresh();
         toast.success(toastMessage);
         router.push(`/${params.storeId}/billboard/`);

@@ -6,7 +6,7 @@ import {
   updateUserForFailedAttempt 
 } from '@/lib/services/auth/auth-service';
 import {generateExpireDate} from "@/lib/utils";
-import {  createTokenPair, hashToken } from "@/lib/server-utils/utils";
+import { createTokenPair } from "@/lib/server-utils/utils";
 
 export async function POST(req:Request){
 
@@ -42,7 +42,7 @@ export async function POST(req:Request){
 
     
     if(user?.otps?.otp && user?.otps?.otp !== body.value){
-      const response = await updateUserForFailedAttempt(user.id)
+      await updateUserForFailedAttempt(user.id);
       return new NextResponse(`"Otp is not matched. You have left ${3 - (user?.otps?.failedAttempts+1) } attempts"`,{status:401})
     }
     
@@ -51,7 +51,8 @@ export async function POST(req:Request){
     const cookiesOptions = { httpOnly: true, secure: true, maxAge: 20*24*60*60, path:"/" }
 
     const responseUser = await deleteOtpAndUpdateUser(user.id, hashedToken, expiresAt);
-    const {hashedPassword, ...data} = responseUser
+    const { hashedPassword, ...data } = responseUser;
+    void hashedPassword;
     const response = NextResponse.json(data, {status:200});
     response.cookies.set("SessionToken", token, cookiesOptions);
     return response;

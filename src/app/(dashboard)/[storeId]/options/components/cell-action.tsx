@@ -43,11 +43,14 @@ function CategoryCellAction({ rowData }: RowDataProps) {
         toast.success("Option is deleted successfully.");
         // router.push(`/${params.storeId}/categories/`);
       }
-    } catch (error:any) {
+    } catch (error: unknown) {
       if(process.env.NODE_ENV === "development"){
         console.error("[FRONTEND_DELETING_OPTION_TABLE]", error)
       }
-      const message = error.response.data || "Something went wrong. Please try again."
+      const message =
+        axios.isAxiosError(error) && typeof error.response?.data === "string"
+          ? error.response.data
+          : "Something went wrong. Please try again.";
       toast.error(message);
     } finally {
       setIsDeleting(false);

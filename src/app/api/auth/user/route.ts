@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { hashToken } from "@/lib/server-utils/utils";
 import { deleteSession, findUser } from "@/lib/services/auth/auth-service";
 
-export async function GET(req:NextRequest) {
+export async function GET() {
   try {
     // 1. Get Token
     const cookieStore = await cookies(); 

@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import PageHeading from "@/components/ui/page-heading";
 import { Separator } from "@/components/ui/separator";
 import { OptionDataProps } from "@/lib/services/options/options-types";
-import AlertModel from "@/components/ui/alert-model";
 import { toast } from "sonner";
 
 interface CategoryDataProps {

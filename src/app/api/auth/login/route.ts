@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateExpireDate } from "@/lib/utils";
-import { createTokenPair, hashPassword, verifyPassword } from "@/lib/server-utils/utils";
+import { createTokenPair, verifyPassword } from "@/lib/server-utils/utils";
 import { 
   fetchUserWithEmail, 
   userUpdateSessionAndDeletePreviousSession 

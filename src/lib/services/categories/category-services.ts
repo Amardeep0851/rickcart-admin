@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { Category } from "@prisma/client";
 
 export const fetchAllCategories = (storeId:string):Promise<Category[] | null> => {
+  console.log(storeId);
   return db.category.findMany({
     where:{
       storeId

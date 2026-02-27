@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { Prisma } from "@prisma/client";
 import slugify from "slugify";
 
 import { formSchema } from "@/lib/services/products/product-schema";
@@ -48,6 +47,7 @@ export async function POST( req: Request, { params }: { params: Promise<{ storeI
 
 export async function GET(req:Request, {params}:{params:Promise<{storeId:string}>}){
   try{
+    void req;
 
     const {storeId} = await params;
     if(!storeId){

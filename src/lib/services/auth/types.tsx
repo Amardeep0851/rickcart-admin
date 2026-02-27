@@ -1,4 +1,3 @@
-import z from "zod";
 import {User as UserPrisma, Otp} from "@prisma/client"
 
 export type UserForCreateAccount = {

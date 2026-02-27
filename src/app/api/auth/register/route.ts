@@ -31,7 +31,8 @@ export async function POST(req:Request){
     }
     
     const hashedPassword2 = await hashPassword(body.password);
-    const {password, ...rest} = await body;
+    const rest = { ...body };
+    delete rest.password;
     const otp = generateOtp()
     const expiresAt = generateExpireDate(10);
     let response;
@@ -40,7 +41,8 @@ export async function POST(req:Request){
       response = await updateNotVerifiedUser({...rest, hashedPassword:hashedPassword2}, otp, expiresAt);
       sendMail(body.firstName, otp, body.email);
       if(response){
-        const {hashedPassword, ...data} = response
+        const { hashedPassword, ...data } = response;
+        void hashedPassword;
         return NextResponse.json(data, {status:200})
       }
     }
@@ -52,7 +54,8 @@ export async function POST(req:Request){
     }
 
     sendMail(body.firstName, otp, body.email);
-    const {hashedPassword, ...data} = response
+    const { hashedPassword, ...data } = response;
+    void hashedPassword;
     return NextResponse.json(data, {status:200})
   } catch (error) {
     console.log("[ERROR_REGISTERING_USER]", error);

@@ -1,4 +1,4 @@
-import { Category, Product, ProductImage, ProductOption, ProductOptionValue } from "@prisma/client";
+import { Category, ProductImage, ProductOption, ProductOptionValue } from "@prisma/client";
 
 
 // --start-- This type is used in form and data table.

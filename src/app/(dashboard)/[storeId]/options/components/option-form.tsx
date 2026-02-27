@@ -80,8 +80,11 @@ function OptionForm({ data }: OptionFormProps) {
         toast.success(toastMessage);
         router.push(`/${params.storeId}/options/`);
       }
-    } catch (err:any) {
-      const message = err.response?.data || "Something went wrong. Please try again.";
+    } catch (err: unknown) {
+      const message =
+        axios.isAxiosError(err) && typeof err.response?.data === "string"
+          ? err.response.data
+          : "Something went wrong. Please try again.";
       toast.error(message); 
     }
   };
@@ -97,11 +100,14 @@ function OptionForm({ data }: OptionFormProps) {
         toast.success("Category deleted successfully.");
         router.push(`/${params.storeId}/options/`);
       }
-    } catch (error:any) {
+    } catch (error: unknown) {
       if(process.env.NODE_ENV === "development"){
         console.error("[FRONTEND_ERROR_DELETING_OPTIONS]", error)
       }
-      const message = error.response.data || "Something went wrong. Please try again."
+      const message =
+        axios.isAxiosError(error) && typeof error.response?.data === "string"
+          ? error.response.data
+          : "Something went wrong. Please try again.";
       toast.error(message);
     } finally {
       setIsDeleting(false);

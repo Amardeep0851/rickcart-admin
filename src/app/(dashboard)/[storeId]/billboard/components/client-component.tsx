@@ -36,11 +36,14 @@ function ClientComponent({BillboardData}:BillboardDataProps) {
         router.refresh();
       }
 
-    } catch (error:any) {
+    } catch (error: unknown) {
       if(process.env.NODE_ENV === "development"){
         console.log("[DELETEING_BULK-PRODUCT]", error);
       }
-      const message = error.response.data || "Something went wrong. Please try again.";
+      const message =
+        axios.isAxiosError(error) && typeof error.response?.data === "string"
+          ? error.response.data
+          : "Something went wrong. Please try again.";
       toast.warning(message)
     } finally {
       setloading(false);

@@ -10,7 +10,6 @@ import DataTable from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import PageHeading from "@/components/ui/page-heading";
 import { Separator } from "@/components/ui/separator";
-import AlertModel from "@/components/ui/alert-model";
 import { ProductDataProps } from "@/lib/services/products/product-types";
 import { toast } from "sonner";
 
@@ -38,11 +37,14 @@ function ClientComponent({ Data }: DataProps) {
         router.refresh();
       }
 
-    } catch (error:any) {
+    } catch (error: unknown) {
       if(process.env.NODE_ENV === "development"){
         console.log("[DELETEING_BULK-PRODUCT]", error);
       }
-      const message = error.response.data || "Something went wrong. Please try again.";
+      const message =
+        axios.isAxiosError(error) && typeof error.response?.data === "string"
+          ? error.response.data
+          : "Something went wrong. Please try again.";
       toast.warning(message)
     } finally {
       setloading(false);

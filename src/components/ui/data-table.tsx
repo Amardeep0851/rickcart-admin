@@ -9,7 +9,6 @@ import {
   ColumnFiltersState,
   getFilteredRowModel,
   getPaginationRowModel,
-  Row,
 } from "@tanstack/react-table";
 
 import {

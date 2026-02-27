@@ -88,9 +88,11 @@ function CategoryForm({ data }: CategoryFormProps) {
         toast.success(toastMessage);
         router.push(`/${params.storeId}/categories/`);
       }
-    } catch (error:any) {
-      // console.error(error);
-      const message = error.response.data || "Something went wrong. Please try again."
+    } catch (error: unknown) {
+      const message =
+        axios.isAxiosError(error) && typeof error.response?.data === "string"
+          ? error.response.data
+          : "Something went wrong. Please try again.";
       toast.error(message);
     }
   };

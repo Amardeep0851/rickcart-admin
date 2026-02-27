@@ -1,9 +1,9 @@
 import { hashToken } from "@/lib/server-utils/utils";
 import { deleteSession, findUser } from "@/lib/services/auth/auth-service";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("SessionToken")?.value;

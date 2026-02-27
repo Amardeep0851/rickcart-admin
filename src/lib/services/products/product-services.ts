@@ -106,10 +106,12 @@ export const createProduct = async (
   storeId: string,
   userId: string
 ) => {
+  const { options, categoryId, ...restBody } = body;
+
   const modifiedData: Prisma.ProductCreateInput = {
-    ...body,
+    ...restBody,
     productOptions: {
-      connect: body.options.map((option: { label: string; value: string }) => ({
+      connect: options.map((option: { label: string; value: string }) => ({
         id: option.value,
       })),
     },
@@ -117,7 +119,7 @@ export const createProduct = async (
       create: body.images.map((url: string) => ({ url })),
     },
     category: {
-      connect: { id: body.categoryId },
+      connect: { id: categoryId },
     },
     slug,
     userId,
@@ -127,22 +129,18 @@ export const createProduct = async (
       },
     },
   };
-  delete (modifiedData as any).options;
-  delete (modifiedData as any).categoryId;
-  delete (modifiedData as any).storeId;
 
   return await db.product.create({ data: modifiedData });
 };
 
 export const updateProduct = async (
-  body: any,
+  body: Record<string, unknown>,
   id: string,
-  slug: string,
   storeId: string,
   userId: string
 ) => {
 
-  const modifiedData: Prisma.ProductUpdateInput = { ...body };
+  const modifiedData = body as Prisma.ProductUpdateInput;
 
   return await db.product.update({
     where: {

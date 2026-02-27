@@ -20,18 +20,18 @@ async function BillboardIdPage({params}:{params:Promise<{storeId:string, product
   
   const store = await getStoreByUserId(storeId, userId)
   const options = await fetchAllOptionsWithValue(storeId, userId);
-  const categories = await fetchAllCategories(storeId, userId);
+  const categories = await fetchAllCategories(storeId);
   const productData = await fetchProductWithId(storeId, productId)
   
   const formattedOptins = options?.map((option) => ({
     value:option.id,
     label:option.name,
-  }))
+  })) ?? []
   
   const formattedCategories = categories?.map((category) => ({
     value:category.id,
     label:category.name,
-  }))
+  })) ?? []
 
   if(!store){
     redirect("/")

@@ -22,7 +22,7 @@ export const EmailTemplate = ({ firstName, otp }: {firstName:string;  otp: strin
             <Text style={code}>{otp}</Text>
           </Section>
           <Text style={text}>
-            This code will expire in 10 minutes. If you didn't request this, please ignore this email.
+            This code will expire in 10 minutes. If you didn&apos;t request this, please ignore this email.
           </Text>
         </Container>
       </Body>

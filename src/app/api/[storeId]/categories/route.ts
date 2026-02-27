@@ -60,7 +60,7 @@ export async function POST(
 
 export async function GET(req:Request,{params}:{params:Promise<{storeId:string}>}) {
   try {
-    const { userId } = await auth();
+    void req;
     const {storeId} = await params;
 
     // if (!userId) {
@@ -75,7 +75,7 @@ export async function GET(req:Request,{params}:{params:Promise<{storeId:string}>
     return NextResponse.json(response, {status:200});
 
   } catch (error) {
-    console.error("[CREATING_CATEGORY_ERROR]", error);
+    console.error("[FETCHING_CATEGORY_ERROR]", error);
     return new NextResponse("An unexpected error occurred. Please try again later.",{status:500})
   }
 }

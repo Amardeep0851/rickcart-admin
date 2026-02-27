@@ -96,10 +96,12 @@ function ProductForm({ data, options, categories }: ProductFormProps) {
         toast.success(toastMessage);
         router.push(`/${params.storeId}/products/`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.log(err);
       const message =
-        err.response?.data || "Something went wrong. Please try again.";
+        axios.isAxiosError(err) && typeof err.response?.data === "string"
+          ? err.response.data
+          : "Something went wrong. Please try again.";
         toast.error(message);
     } 
   };
@@ -117,12 +119,14 @@ function ProductForm({ data, options, categories }: ProductFormProps) {
         toast.success("Product deleted successfully.");
         router.push(`/${params.storeId}/products/`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (process.env.NODE_ENV === "development") {
         console.error("[FRONTEND_ERROR_DELETING_OPTIONS]", error);
       }
       const message =
-        error.response.data || "Something went wrong. Please try again.";
+        axios.isAxiosError(error) && typeof error.response?.data === "string"
+          ? error.response.data
+          : "Something went wrong. Please try again.";
       toast.error(message);
     } finally {
       setIsDeleting(false);

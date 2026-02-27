@@ -21,6 +21,7 @@ export async function GET(
   //Here we are using directly productID instead of slug. But we are fetchign data with slug not productId because that is also unique.
 
   try {
+    void req;
     const {productId, storeId} = await params;
     if(!productId){
       return new NextResponse("Product ID is required.",{status:400})
@@ -80,7 +81,7 @@ export async function PATCH(
       );
     }
 
-    let changedFields: Record<string, unknown> = {};
+    const changedFields: Record<string, unknown> = {};
     const oldData = {
       comparePrice: product.comparePrice,
       costPrice: product.costPrice,
@@ -170,7 +171,7 @@ export async function PATCH(
     changedFields.tags = validatedBody.data.tags;
     //--end--
 
-    const response = await updateProduct( changedFields, product.id, slug, storeId, userId );
+    const response = await updateProduct(changedFields, product.id, storeId, userId);
     return NextResponse.json({ data: response }, { status: 200 });
   } catch (error) {
     console.error("[BACKEND_PRODUCT_PATCH_ERROR]", error);
@@ -180,6 +181,7 @@ export async function PATCH(
 
 export async function DELETE(req:Request, {params}:{params:Promise<{productId:string, storeId:string}>}){
   try {
+    void req;
     const { userId } = await auth();
     const { storeId, productId } = await params;
 
