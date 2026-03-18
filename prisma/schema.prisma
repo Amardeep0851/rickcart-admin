@@ -22,6 +22,7 @@ model User{
   otps Otp?
   accounts Account[]
   address Address[]
+  orders Order[]
   @@index([email])
   @@map("users")
 }
@@ -101,6 +102,7 @@ model Store {
   categories     Category[]      @relation("StoreToCategory")
   products       Product[]       @relation("StoreToProduct")
   productOptions ProductOption[] @relation("StoreToProductOption")
+  orders Order[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -251,6 +253,7 @@ model Product {
   images ProductImage[]
 
   productOptions ProductOption[] @relation("ProductToProductOption")
+  orderItems OrderItem[]
   @@unique([storeId, slug])
   @@index([storeId, isActive])
   @@index([categoryId])
@@ -332,60 +335,83 @@ model ProductOptionValue {
 // ✅ ADD: Missing essential models for e-commerce
 
 
-// model Order {
-//   id         String @id @default(uuid())
-//   orderNumber String @unique // Human-readable order number
+model Order {
+  id          String @id @default(uuid()) @db.Uuid
+  orderNumber String @unique // Human-readable order number
 
-//   userId String
-//   user   Customer @relation(fields: [customerId], references: [id])
+  userId String
+  user   User @relation(fields: [userId], references: [id])
 
-//   storeId    String // ✅ FIX: Orders belong to stores
+  storeId    String 
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
-//   // Order totals
-//   subtotal     Decimal @db.Decimal(10,2)
-//   taxAmount    Decimal @db.Decimal(10,2) @default(0)
-//   shippingCost Decimal @db.Decimal(10,2) @default(0)
-//   totalAmount  Decimal @db.Decimal(10,2)
+  // Order totals
+  subtotal     Decimal @db.Decimal(10,2)
+  taxAmount    Decimal @db.Decimal(10,2) @default(0)
+  shippingCost Decimal @db.Decimal(10,2) @default(0)
+  totalAmount  Decimal @db.Decimal(10,2)
 
-//   // Status
-//   status        String @default("pending") // pending, confirmed, shipped, delivered, cancelled
-//   paymentStatus String @default("pending") // pending, paid, failed, refunded
+  // Status
+  status        OrderStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
 
-//   // Addresses
-//   shippingAddress Json
-//   billingAddress  Json?
+  // Addresses
+  shippingAddress Json
+  billingAddress  Json?
 
-//   // Fulfillment
-//   trackingNumber String?
-//   shippedAt     DateTime?
-//   deliveredAt   DateTime?
+  // Fulfillment
+  trackingNumber String?
+  shippedAt     DateTime?
+  deliveredAt   DateTime?
 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-//   items OrderItem[]
+  items OrderItem[]
 
-//   @@index([customerId])
-//   @@index([storeId])
-//   @@index([status])
-//   @@index([createdAt])
-//   @@map("orders")
-// }
+  @@index([userId])
+  @@index([storeId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([storeId, createdAt])
+  @@index([storeId, status])
+  @@map("orders")
+}
 
-// model OrderItem {
-//   id         String  @id @default(uuid())
-//   orderId    String
-//   productId  String
-//   variantId  String? // If product has variants
+model OrderItem {
+  id         String  @id @default(uuid()) @db.Uuid
+  orderId    String  @db.Uuid
+  productId  String? @db.Uuid
+  variantId  String? // If product has variants
 
-//   quantity   Int
-//   price      Decimal @db.Decimal(10,2) // Price at time of order
+  productName  String
+  productImage String?
+  quantity   Int
+  price      Decimal @db.Decimal(10,2) // Price at time of order
 
-//   order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product    Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 
-//   createdAt  DateTime @default(now())
+  createdAt  DateTime @default(now())
 
-//   @@index([orderId])
-//   @@index([productId])
-//   @@map("order_items")
-// }
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}

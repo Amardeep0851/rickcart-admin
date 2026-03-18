@@ -11,32 +11,43 @@ function MainMenu() {
 
   const navLinks = [
   {
+    route:`/${params.storeId}`,
+    label:"Dashboard",
+    active:pathname === `/${params.storeId}`
+  },
+  {
     route:`/${params.storeId}/settings`,
     label:"Settings",
-    active:pathname === `/${params.storeId}/settings`
+    active:pathname.startsWith(`/${params.storeId}/settings`)
   },
   {
     route:`/${params.storeId}/categories`,
     label:"Categories",
-    active:pathname === `/${params.storeId}/categories`
+    active:pathname.startsWith(`/${params.storeId}/categories`)
   
   },
   {
     route:`/${params.storeId}/billboard`,
     label:"Billboard",
-    active:pathname === `/${params.storeId}/billboard`
+    active:pathname.startsWith(`/${params.storeId}/billboard`)
   
   },
   {
     route:`/${params.storeId}/products`,
     label:"Product",
-    active:pathname === `/${params.storeId}/products`
+    active:pathname.startsWith(`/${params.storeId}/products`)
   
   },
   {
     route:`/${params.storeId}/options`,
     label:"Options",
-    active:pathname === `/${params.storeId}/options`
+    active:pathname.startsWith(`/${params.storeId}/options`)
+  
+  },
+  {
+    route:`/${params.storeId}/orders`,
+    label:"Orders",
+    active:pathname.startsWith(`/${params.storeId}/orders`)
   
   }
 ]

@@ -8,3 +8,11 @@ export function cn(...inputs: ClassValue[]) {
 export const generateExpireDate = (minutes:number=10) => {
   return new Date(Date.now() + minutes*60*1000)
 }
+
+export const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  }).format(amount);
+}

@@ -27,8 +27,9 @@ interface DataProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchKey: string;
-  onDelete: (rows: string[]) => void;
-  disabled: boolean;
+  onDelete?: (rows: string[]) => void;
+  disabled?: boolean;
+  searchPlaceholder?: string;
 }
 
 function DataTable<TData extends { id: string }, TValue>({
@@ -36,7 +37,8 @@ function DataTable<TData extends { id: string }, TValue>({
   columns,
   searchKey,
   onDelete,
-  disabled,
+  disabled = false,
+  searchPlaceholder,
 }: DataProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -56,25 +58,27 @@ function DataTable<TData extends { id: string }, TValue>({
     },
   });
   const handleDelete = () => {
-    onDelete(ids);
+    onDelete?.(ids);
   };
   return (
     <>
-      <AlertModel
-        title={`Confirm Deletion of rows`}
-        description={`Are you sure you want to permanently delete rows? Once deleted, this information cannot be recovered. Please confirm your decision before proceeding.`}
-        onClose={() => {
-          setIsOpen(false);
-          setIds([]);
-        }}
-        onComfirm={handleDelete}
-        isOpen={isOpen}
-        disabled={disabled}
-      />
+      {onDelete && (
+        <AlertModel
+          title={`Confirm Deletion of rows`}
+          description={`Are you sure you want to permanently delete rows? Once deleted, this information cannot be recovered. Please confirm your decision before proceeding.`}
+          onClose={() => {
+            setIsOpen(false);
+            setIds([]);
+          }}
+          onComfirm={handleDelete}
+          isOpen={isOpen}
+          disabled={disabled}
+        />
+      )}
       <div>
         <div className="block lg:flex lg:justify-between space-y-4 py-4">
           <Input
-            placeholder={`Search in table with ${searchKey}`}
+            placeholder={searchPlaceholder ?? `Search in table with ${searchKey}`}
             value={
               (table.getColumn(searchKey)?.getFilterValue() as string) ?? ""
             }
@@ -84,23 +88,27 @@ function DataTable<TData extends { id: string }, TValue>({
             className="w-full lg:w-sm"
           />
 
-          <Button
-            variant="destructive"
-            disabled={
-              !table.getFilteredSelectedRowModel().rows.length || disabled
-            }
-            onClick={() => {
-              const ids = table.getFilteredSelectedRowModel().rows.map((row) => row?.original.id);
-              setIds(ids);
-              setIsOpen(true);
-              table.resetRowSelection();
-            }}
-            className="w-full lg:w-auto cursor-pointer"
-          >
-            {`Delete ${table.getSelectedRowModel().rows.length} ${
-              table.getSelectedRowModel().rows.length < 2 ? "row" : "rows"
-            }`}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="destructive"
+              disabled={
+                !table.getFilteredSelectedRowModel().rows.length || disabled
+              }
+              onClick={() => {
+                const ids = table
+                  .getFilteredSelectedRowModel()
+                  .rows.map((row) => row?.original.id);
+                setIds(ids);
+                setIsOpen(true);
+                table.resetRowSelection();
+              }}
+              className="w-full lg:w-auto cursor-pointer"
+            >
+              {`Delete ${table.getSelectedRowModel().rows.length} ${
+                table.getSelectedRowModel().rows.length < 2 ? "row" : "rows"
+              }`}
+            </Button>
+          )}
         </div>
       </div>
       <Table>
